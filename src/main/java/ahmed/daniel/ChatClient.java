@@ -16,7 +16,7 @@ public class ChatClient {
     private final RoutingTableManager routingTableManager;
 
     private final Thread accThread;
-    private final Thread routThread;
+    //private final Thread routThread;
 
     /**
      * This is very important. It shows the possible IPv4-Addresses which can be addressed. Usually gets filled by
@@ -37,14 +37,16 @@ public class ChatClient {
         }
 
         this.accThread = new Thread(new AcceptThread(this.serverSocket, this.activeConnectionManager, this.routingTableManager));
-        this.routThread = new Thread(new RoutingThread());
+
+        //TODO
+        //this.routThread = new Thread(new RoutingThread());
     }
 
     public void startClient() {
         this.accThread.start();
-        this.routThread.start();
+        // TODO
+        //this.routThread.start();
     }
-
 
     public Socket accept() {
         try {
@@ -55,100 +57,34 @@ public class ChatClient {
         }
     }
 
-    private byte[] fillWithFillbytes(byte[] byteStream){
-        int len = byteStream.length;
-        if (len == protocolConstants.MAX_MESSAGE_LENGTH_IN_BYTES) {
-            return byteStream;
-        }
-        byte[] filledByteStream = new byte[protocolConstants.MAX_MESSAGE_LENGTH_IN_BYTES];
-        System.arraycopy(byteStream, 0, filledByteStream, 0, len);
-
-        for(int i = len; i < protocolConstants.MAX_MESSAGE_LENGTH_IN_BYTES; i++){
-            filledByteStream[i] = 0;
-        }
-
-        return filledByteStream;
-    }
-
-    private void addBasisheader(byte[]byteStream, String destinationName, byte type){
-        // Type and TTL
-        byteStream[0] = type;
-        byteStream[1] = protocolConstants.TTL;
-
-        byte[] destNameBytes = new byte[protocolConstants.DESTINATION_NETWORK_NAME_SIZE_IN_BYTE];
-        try {
-            destNameBytes = destinationName.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            System.out.println("ERROR: ADDBASISHEADER CONVERT DEST TO BYTE[]");
-        }
-        // Destination-Name
-        byteStream[2] = destNameBytes[0];
-        byteStream[3] = destNameBytes[1];
-        byteStream[4] = destNameBytes[2];
-
-
-        byte[] sourceNameBytes = new byte[protocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE];
-        try {
-            sourceNameBytes = this.name.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            System.out.println("ERROR: ADDBASISHEADER CONVERT SRC TO BYTE[]");
-        }
-        // Source-Name
-        byteStream[5] = sourceNameBytes[0];
-        byteStream[6] = sourceNameBytes[1];
-        byteStream[7] = sourceNameBytes[2];
-    }
-
-
-    public void send(byte[] message, Socket socket){
-
-        try {
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-            byte[] messageFilled = fillWithFillbytes(message);
-            out.write(messageFilled);
-        } catch (IOException e) {
-            System.out.println("ERROR WITH DATAOUTPUTSTREAM IN SEND");
-        } catch (NullPointerException nu) {
-            System.out.println("A Connection should be set before sending a Message");
-        }
-    }
-
-
     /**
      * Sends a ASCII-Message to the desired IP-Adress.
-     * @param message           -   Message in bytes to be send
+     * @param payload           -   Message in bytes to be send
      * @param destinationName   -   Name of the Destination which should receive the Message
      */
-    public void sendMessage(String message, String destinationName) {
+    public void sendMessage(String payload, String destinationName) {
         Socket pickedSocket = activeConnectionManager.getSocketFromName(destinationName);
-        try{
-            byte[] messageBytes = message.getBytes("UTF-8");
-            byte[] messageWithHeader = new byte[messageBytes.length + protocolConstants.BASISHEADER_SIZE_IN_BYTE];
-            addBasisheader(messageWithHeader,destinationName , protocolConstants.TYPE_MESSAGEPAKET);
-            // Add actual message after the basisheader
-            for(int i = protocolConstants.BASISHEADER_SIZE_IN_BYTE, j = 0; i < messageWithHeader.length; i++, j++){
-                messageWithHeader[i] = messageBytes[j];
-            }
-            send(messageWithHeader, pickedSocket);
-        }  catch (UnsupportedEncodingException e) {
-            System.out.println("ERROR: CONVERT MESSAGE TO BYTE[]");
-        }
+        Message message = new CommunicationMessage(pickedSocket,this.name, payload);
+        message.send(destinationName);
     }
 
     public void sendName(Socket socket, String destinationName){
-        byte[] namePackage = new byte[protocolConstants.BASISHEADER_SIZE_IN_BYTE];
-        addBasisheader(namePackage, destinationName, protocolConstants.TYPE_VERBINDUNGSPAKET);
-        send(namePackage, socket);
+        Message message = new ConnectionMessage(socket, this.name);
+        message.send(destinationName);
     }
 
     //TODO: eventuell ersetzen mit sendMessage mit einem Parameter TYPE
     public void sendRouting(byte[] routingInfos, Socket socket, String destinationName) {
-        byte[] routingWithBasisHeader = new byte[protocolConstants.BASISHEADER_SIZE_IN_BYTE + routingInfos.length];
-        addBasisheader(routingWithBasisHeader, destinationName, protocolConstants.TYPE_ROUTINGPAKET);
-        for(int i = protocolConstants.BASISHEADER_SIZE_IN_BYTE, j = 0; i < routingWithBasisHeader.length; i++, j++) {
+        /*
+        byte[] routingWithBasisHeader = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE + routingInfos.length];
+        addBasisheader(routingWithBasisHeader, destinationName, ProtocolConstants.TYPE_ROUTINGPAKET);
+        for(int i = ProtocolConstants.BASISHEADER_SIZE_IN_BYTE, j = 0; i < routingWithBasisHeader.length; i++, j++) {
             routingWithBasisHeader[i] = routingInfos[j];
         }
         send(routingWithBasisHeader, socket);
+         */
+
+        //TODO: RoutingMessage schreiben für routing Packete
     }
 
 
@@ -179,6 +115,7 @@ public class ChatClient {
         return this.name;
     }
 
+    //TODO: sollte keinen DestinationNamen haben
     public void addNewConnection(String ipv4address, int port, String destinationName) {
         try{
             //Connect to new Client

@@ -35,7 +35,7 @@ public class ReceiverTask implements Runnable{
             //BufferedReader in = new BufferedReader(new InputStreamReader(this.socket.getInputStream(), "UTF-8")); //Wenn es noch keine Verbindung gibt Big Problem
             DataInputStream in = new DataInputStream(socket.getInputStream());
 
-            byte[] buffer = new byte[protocolConstants.MAX_MESSAGE_LENGTH_IN_BYTES];
+            byte[] buffer = new byte[ProtocolConstants.MAX_MESSAGE_LENGTH_IN_BYTES];
             while(true) {
                 in.readFully(buffer);
 
@@ -45,7 +45,7 @@ public class ReceiverTask implements Runnable{
 
 
                 switch(buffer[0]) {
-                    case protocolConstants.TYPE_VERBINDUNGSPAKET: {
+                    case ProtocolConstants.TYPE_VERBINDUNGSPAKET: {
                         //String in jeweiligen PaketDaten 
 
                         byte TYPE = buffer[0];
@@ -65,33 +65,34 @@ public class ReceiverTask implements Runnable{
                         String sourceName = new String(sourceNameAsBytes, "UTF-8");
 
                         activeConnectionManager.addActiveConnection(sourceName, this.socket);
-                        // Here we had to swap the positions of destName and sourceName
+                        // Here we had to swap the positions of destName and sourceName TODO gkaub das ist falsch + 1 magic number
                         routingTableManager.addRoutingTableEntry(destinationName, sourceName, (short)socket.getPort(),(byte)1);
                         
-                        System.out.println("NAMENPAKET"); break;
+                        System.out.println("NAMENPAKET");
                     }
-                    case protocolConstants.TYPE_ROUTINGPAKET: {
+                    break;
+                    case ProtocolConstants.TYPE_ROUTINGPAKET: {
                         System.out.println("Routingpaket");
                         int amountOfRoutingTables = buffer[8];
                         byte[] routingMessage = Arrays.copyOfRange(buffer, 9, buffer.length);
                                                 
                         for(int i = 0; i < amountOfRoutingTables; i++) {
-                            int offset = i*protocolConstants.ROUTING_ENTRY_SIZE_IN_BYTE;
+                            int offset = i* ProtocolConstants.ROUTING_ENTRY_SIZE_IN_BYTE;
 
                             // Source
                             int startIndex = offset;
-                            int stopIndex = startIndex + protocolConstants.ROUTING_SOURCE_SIZE_IN_BYTE;
+                            int stopIndex = startIndex + ProtocolConstants.ROUTING_SOURCE_SIZE_IN_BYTE;
                             byte[] sourceBytes = Arrays.copyOfRange(routingMessage, offset, stopIndex);
                             String source = new String(sourceBytes, "UTF-8");
 
                             // Destination
                             startIndex = stopIndex;
-                            stopIndex = startIndex + protocolConstants.ROUTING_DESTINATION_SIZE_IN_BYTE;
+                            stopIndex = startIndex + ProtocolConstants.ROUTING_DESTINATION_SIZE_IN_BYTE;
                             byte[] destinationBytes = Arrays.copyOfRange(routingMessage, startIndex, stopIndex);
                             String destination = new String(destinationBytes, "UTF-8");
                             // Port
                             startIndex = stopIndex;
-                            stopIndex = startIndex + protocolConstants.PORT_SIZE_IN_BYTE;
+                            stopIndex = startIndex + ProtocolConstants.PORT_SIZE_IN_BYTE;
                             byte[] portBytes = Arrays.copyOfRange(routingMessage, startIndex, stopIndex);
                             short port =  ByteBuffer.wrap(portBytes).getShort();
 
@@ -124,7 +125,7 @@ public class ReceiverTask implements Runnable{
                         }                    
                     }
                     break;
-                    case protocolConstants.TYPE_MESSAGEPAKET: {
+                    case ProtocolConstants.TYPE_MESSAGEPAKET: {
                         //Hier Annahme: Jede Nachricht die ankommt ist auch an uns gedacht
                         //Richtig wäre: Jede Nachricht die ankommt MUSS gecheckt werden, ob sie an uns gerichtet war.
                         // ----------> WENN JA: Print auf STDOUT

@@ -1,7 +1,7 @@
 package ahmed.daniel;
 
-public final class protocolConstants {
-    private protocolConstants(){}
+public final class ProtocolConstants {
+    private ProtocolConstants(){}
 
     // Basisheader:
     // TYP

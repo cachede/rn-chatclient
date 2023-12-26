@@ -11,6 +11,8 @@ public class RoutingThread implements Runnable {
 
     @Override
     public void run() {
+
+        /*
         while(!Thread.interrupted()) {
             try {
                 Thread.sleep(30000);
@@ -70,5 +72,7 @@ public class RoutingThread implements Runnable {
 
 
         }
+
+         */
     }
 }

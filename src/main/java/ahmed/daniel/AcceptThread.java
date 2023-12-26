@@ -25,7 +25,8 @@ public class AcceptThread implements Runnable {
             try {
                 newSocket = this.serverSocket.accept();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                //TODO
+                break;
             }
 
             System.out.println("NEW CONNECTION: " + newSocket.getPort());
