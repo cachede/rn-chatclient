@@ -1,9 +1,12 @@
-package ahmed.daniel;
+package ahmed.daniel.Messages;
+
+import ahmed.daniel.Messages.Message;
+import ahmed.daniel.ProtocolConstants;
 
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
-public class CommunicationMessage extends Message{
+public class CommunicationMessage extends Message {
 
     private String payload;
 

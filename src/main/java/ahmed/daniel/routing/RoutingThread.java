@@ -1,4 +1,4 @@
-package ahmed.daniel;
+package ahmed.daniel.routing;
 
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
@@ -8,6 +8,9 @@ import java.util.Map;
 
 public class RoutingThread implements Runnable {
 
+    public RoutingThread() {
+
+    }
 
     @Override
     public void run() {

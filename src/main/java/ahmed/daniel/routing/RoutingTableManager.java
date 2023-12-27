@@ -1,4 +1,4 @@
-package ahmed.daniel;
+package ahmed.daniel.routing;
 
 import java.util.List;
 import java.util.Iterator;
@@ -16,8 +16,8 @@ public class RoutingTableManager{
         return this.routingtables;
     }
     
-    public synchronized void addRoutingTableEntry(String source, String destination, short port, byte hopCount){
-        RoutingTable newRoutingTable = new RoutingTable(source, destination, port, hopCount);
+    public synchronized void addRoutingTableEntry(String destination, String nextHop, byte hopCount){
+        RoutingTable newRoutingTable = new RoutingTable(destination, nextHop, hopCount);
         this.routingtables.add(newRoutingTable);
     }
 
@@ -25,7 +25,7 @@ public class RoutingTableManager{
         Iterator<RoutingTable> iterator = routingtables.iterator();
         while (iterator.hasNext()) {
             RoutingTable routingTable = iterator.next();
-            if (routingTable.getSource().equals(source)) {
+            if (routingTable.getNextHop().equals(source)) {
                 iterator.remove();
             }
         }
