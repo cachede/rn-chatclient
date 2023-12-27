@@ -1,8 +1,16 @@
 package ahmed.daniel.routing;
 
+import ahmed.daniel.ActiveConnectionManager;
+
+
 public class RoutingTableThread implements Runnable{
 
-    
+    private ActiveConnectionManager activeConnectionManager;
+    public RoutingTableThread(ActiveConnectionManager activeConnectionManager) {
+        this.activeConnectionManager = activeConnectionManager;
+    }
+
+
 
 
 

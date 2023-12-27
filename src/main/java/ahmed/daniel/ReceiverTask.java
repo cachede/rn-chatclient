@@ -122,7 +122,7 @@ public class ReceiverTask implements Runnable{
                         //-----------> WENN NEIN: Leite weiter an richtigen Socket
                         byte[] sourceNameAsBytes = new byte[ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE];
                         for(int i = ProtocolConstants.SOURCE_NETWORK_NAME_LOWER, j = 0; i < ProtocolConstants.SOURCE_NETWORK_NAME_HIGHER; i++, j++) {
-                            sourceNameAsBytes[j] = buffer[j];
+                            sourceNameAsBytes[j] = buffer[i];
                         }
 
                         String sourceName = new String(sourceNameAsBytes, "UTF-8");
