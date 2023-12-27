@@ -9,11 +9,13 @@ import java.nio.ByteBuffer;
 public class ReceiverTask implements Runnable{
 
     private final Socket socket;
+    private final String name;
     private final ActiveConnectionManager activeConnectionManager;
     private final RoutingTableManager routingTableManager;
 
-    public ReceiverTask(Socket socket, ActiveConnectionManager activeConnections, RoutingTableManager routingTableManager){
+    public ReceiverTask(Socket socket, String name, ActiveConnectionManager activeConnections, RoutingTableManager routingTableManager){
         this.socket = socket;
+        this.name = name;
         this.activeConnectionManager = activeConnections;
         this.routingTableManager = routingTableManager;
         if (this.socket == null) {
@@ -46,7 +48,6 @@ public class ReceiverTask implements Runnable{
 
                 switch(buffer[0]) {
                     case ProtocolConstants.TYPE_VERBINDUNGSPAKET: {
-                        //String in jeweiligen PaketDaten 
 
                         byte TYPE = buffer[0];
                         byte TTL = buffer[1];
@@ -62,12 +63,18 @@ public class ReceiverTask implements Runnable{
                         byte sourceName3 = buffer[7];
 
                         byte[] sourceNameAsBytes = {sourceName1, sourceName2, sourceName3};
-                        String sourceName = new String(sourceNameAsBytes, "UTF-8");
+                        String sourceName = new String(sourceNameAsBytes, "UTF-8") ;
 
                         activeConnectionManager.addActiveConnection(sourceName, this.socket);
                         // Here we had to swap the positions of destName and sourceName TODO gkaub das ist falsch + 1 magic number
                         routingTableManager.addRoutingTableEntry(destinationName, sourceName, (short)socket.getPort(),(byte)1);
-                        
+
+                        // Send our name to source if our name is not set for them yet
+                        if (destinationName.equals(ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET)){
+                            Message namePackage  = new ConnectionMessage(this.socket, this.name);
+                            namePackage.sendTo(sourceName);
+                        }
+
                         System.out.println("NAMENPAKET");
                     }
                     break;

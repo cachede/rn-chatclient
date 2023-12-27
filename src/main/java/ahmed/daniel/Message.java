@@ -32,7 +32,7 @@ public abstract class Message {
 
     protected abstract byte[] getPayloadInBytes() throws UnsupportedEncodingException;
 
-    public void send(String destinationName){
+    public void sendTo(String destinationName){
         try{
             byte[] message = buildMessage(destinationName);
             DataOutputStream out = new DataOutputStream(this.socket.getOutputStream());

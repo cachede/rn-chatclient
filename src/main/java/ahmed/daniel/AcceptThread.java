@@ -8,12 +8,14 @@ import java.util.concurrent.ExecutorService;
 
 public class AcceptThread implements Runnable {
 
-    private ServerSocket serverSocket;
-    private ActiveConnectionManager activeConnectionManager;
-    private RoutingTableManager routingTableManager;
+    private final ServerSocket serverSocket;
+    private final String name;
+    private final ActiveConnectionManager activeConnectionManager;
+    private final RoutingTableManager routingTableManager;
 
-    public AcceptThread(ServerSocket serverSocket, ActiveConnectionManager activeConnectionManager, RoutingTableManager routingTableManager) {
+    public AcceptThread(ServerSocket serverSocket, String name, ActiveConnectionManager activeConnectionManager, RoutingTableManager routingTableManager) {
         this.serverSocket = serverSocket;
+        this.name = name;
         this.activeConnectionManager = activeConnectionManager;
         this.routingTableManager = routingTableManager;
     }
@@ -36,7 +38,7 @@ public class AcceptThread implements Runnable {
             //activeConnectionManager.addReceivingThread(receivingThread);
 
             ///
-            Runnable receiverTask = new ReceiverTask(newSocket, activeConnectionManager, routingTableManager);
+            Runnable receiverTask = new ReceiverTask(newSocket, this.name, this.activeConnectionManager, this.routingTableManager);
             activeConnectionManager.addReceivingTask(receiverTask);
         }
     }

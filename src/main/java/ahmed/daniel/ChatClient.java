@@ -36,7 +36,7 @@ public class ChatClient {
             System.out.println("ERROR CREATING SERVER SOCKET");
         }
 
-        this.accThread = new Thread(new AcceptThread(this.serverSocket, this.activeConnectionManager, this.routingTableManager));
+        this.accThread = new Thread(new AcceptThread(this.serverSocket, this.name, this.activeConnectionManager, this.routingTableManager));
 
         //TODO
         //this.routThread = new Thread(new RoutingThread());
@@ -65,12 +65,12 @@ public class ChatClient {
     public void sendMessage(String payload, String destinationName) {
         Socket pickedSocket = activeConnectionManager.getSocketFromName(destinationName);
         Message message = new CommunicationMessage(pickedSocket,this.name, payload);
-        message.send(destinationName);
+        message.sendTo(destinationName);
     }
 
-    public void sendName(Socket socket, String destinationName){
+    public void sendName(Socket socket){
         Message message = new ConnectionMessage(socket, this.name);
-        message.send(destinationName);
+        message.sendTo(ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
     }
 
     //TODO: eventuell ersetzen mit sendMessage mit einem Parameter TYPE
@@ -94,9 +94,9 @@ public class ChatClient {
      * @param ipAddress -   IPv4-Address of the desired Client
      * @param port      -   Port on which you want to connect
      */
-    public Socket connectTo(InetAddress ipAddress, int port, String destinationName) throws IOException, NullPointerException, IllegalArgumentException{
+    public Socket connectTo(InetAddress ipAddress, int port) throws IOException, NullPointerException, IllegalArgumentException{
         Socket newSocket = new Socket(ipAddress, port);
-        sendName(newSocket, destinationName); // unseren namen schicken mit flag 0 
+        sendName(newSocket); // unseren namen schicken mit flag 0
         return newSocket;
     }
 
@@ -115,17 +115,20 @@ public class ChatClient {
         return this.name;
     }
 
-    //TODO: sollte keinen DestinationNamen haben
-    public void addNewConnection(String ipv4address, int port, String destinationName) {
+    public void addNewConnection(String ipv4address, int port) {
         try{
             //Connect to new Client
-            Socket newSocket = connectTo(InetAddress.getByName(ipv4address), port, destinationName);
+            Socket newSocket = connectTo(InetAddress.getByName(ipv4address), port);
+
+            //TODO Here we have to get destinationname -> wait on socket with new socket
+            // Discard new connection if we dont get a valid name
+
 
             // Inform the Managers and Start Recv-Thread
-            activeConnectionManager.addActiveConnection(destinationName, newSocket);
-            Runnable receiverTask = new ReceiverTask(newSocket, activeConnectionManager, routingTableManager);
+            //activeConnectionManager.addActiveConnection(destinationName, newSocket);
+            Runnable receiverTask = new ReceiverTask(newSocket, this.name, activeConnectionManager, routingTableManager);
             activeConnectionManager.addReceivingTask(receiverTask);
-            routingTableManager.addRoutingTableEntry(getName(), destinationName, (short)port, (byte)1);
+            //routingTableManager.addRoutingTableEntry(getName(), destinationName, (short)port, (byte)1);
         }
         catch(IOException ie){
             System.out.println("Konnte keine Verbindung herstellen zu " + ipv4address + "mit Port " + port);

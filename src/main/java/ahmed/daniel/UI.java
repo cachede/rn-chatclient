@@ -31,9 +31,7 @@ public class UI {
                     String ipv4address = scanner.nextLine();
                     System.out.println("PORT: ");
                     int port = Integer.parseInt(scanner.nextLine());
-                    System.out.println("NAMEN DES PARTNERS");               //TODO: should not ask name
-                    String destinationName = scanner.nextLine();
-                    chatClient.addNewConnection(ipv4address, port, destinationName);
+                    chatClient.addNewConnection(ipv4address, port);
                     break;
                 }
                 case SEND_MESSAGE: {

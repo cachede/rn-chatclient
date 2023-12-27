@@ -17,6 +17,7 @@ public final class ProtocolConstants {
 
     // Zielnetzname and Quellnetzname
     public static final int DESTINATION_NETWORK_NAME_SIZE_IN_BYTE = 3;
+    public static final String DESTINATION_NETWORK_NAME_NOT_SET = "ZZZ";
     public static final int SOURCE_NETWORK_NAME_SIZE_IN_BYTE = 3;
 
     // Total Basisheader size
