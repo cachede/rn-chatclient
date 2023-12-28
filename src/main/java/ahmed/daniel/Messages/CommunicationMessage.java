@@ -10,8 +10,8 @@ public class CommunicationMessage extends Message {
 
     private String payload;
 
-    public CommunicationMessage(Socket socket, String sourceName, String payload) {
-        super(socket, ProtocolConstants.TYPE_MESSAGEPAKET, sourceName);
+    public CommunicationMessage(String sourceName, String payload) {
+        super(ProtocolConstants.TYPE_MESSAGEPAKET, sourceName);
         this.payload = payload;
     }
 
@@ -21,7 +21,3 @@ public class CommunicationMessage extends Message {
         return this.payload.getBytes("UTF-8");
     }
 }
-
-
-
-

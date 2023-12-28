@@ -43,14 +43,15 @@ public final class ProtocolConstants {
     public static final int MAX_MESSAGE_LENGTH_IN_BYTES = BASISHEADER_SIZE_IN_BYTE + MAX_CHARACTERS_PER_MESSAGE;
 
     // Routingeintragspaket
-    public static final int ROUTING_SOURCE_SIZE_IN_BYTE = 3;
     public static final int ROUTING_DESTINATION_SIZE_IN_BYTE = 3;
-    // Port-size like above
+
+    public static final int ROUTING_NEXT_HOP_SIZE_IN_BYTE = 3;
+
     public static final int ROUTING_HOPCOUNT_SIZE_IN_BYTE = 1;
 
     // Total size
-    public static final int ROUTING_ENTRY_SIZE_IN_BYTE = ROUTING_SOURCE_SIZE_IN_BYTE
-            + ROUTING_DESTINATION_SIZE_IN_BYTE + ROUTING_HOPCOUNT_SIZE_IN_BYTE;
+    public static final int ROUTING_ENTRY_SIZE_IN_BYTE = ROUTING_DESTINATION_SIZE_IN_BYTE + ROUTING_NEXT_HOP_SIZE_IN_BYTE
+            + ROUTING_HOPCOUNT_SIZE_IN_BYTE;
 
     // Routingpaket:
     public static final int ROUTING_AMOUNT_OF_PACKETS_SIZE_IN_BYTE = 1;

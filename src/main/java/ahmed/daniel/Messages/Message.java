@@ -9,12 +9,10 @@ import java.net.Socket;
 
 public abstract class Message {
 
-    private final Socket socket;
     private final String sourceName;
     private final byte type;
 
-    public Message(Socket socket, byte type, String sourceName) {
-        this.socket = socket;
+    public Message(byte type, String sourceName) {
         this.type = type;
         this.sourceName = sourceName;
     }
@@ -34,10 +32,10 @@ public abstract class Message {
 
     protected abstract byte[] getPayloadInBytes() throws UnsupportedEncodingException;
 
-    public void sendTo(String destinationName){
+    public void sendTo(Socket socket, String destinationName){
         try{
             byte[] message = buildMessage(destinationName);
-            DataOutputStream out = new DataOutputStream(this.socket.getOutputStream());
+            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
             out.write(message);
         } catch (IOException e) {
             System.out.println("ERROR WITH DATAOUTPUTSTREAM IN SEND");

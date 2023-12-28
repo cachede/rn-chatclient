@@ -24,7 +24,6 @@ public class UI {
         while(running) {
             System.out.print("COMMAND: ");
             String input = scanner.nextLine().toLowerCase();
-            System.out.println("User Input was:" + input);
             switch (input) {
                 case CONNECT_TO: {
                     System.out.println("IPV4-ADDRESS: ");
@@ -54,6 +53,7 @@ public class UI {
                     System.out.println("Quitting Program ...");
                     chatClient.stopSocket();
                     chatClient.stopActiveConnections();
+                    chatClient.stopRouting();
                     scanner.close();
                     running = false;
                     break;

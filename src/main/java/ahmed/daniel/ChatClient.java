@@ -4,9 +4,11 @@ import ahmed.daniel.Messages.CommunicationMessage;
 import ahmed.daniel.Messages.ConnectionMessage;
 import ahmed.daniel.Messages.Message;
 import ahmed.daniel.routing.RoutingTableManager;
+import ahmed.daniel.routing.RoutingTableThread;
 
 import java.net.*;
 import java.io.*;
+import java.util.Timer;
 
 public class ChatClient {
     private ServerSocket serverSocket;
@@ -21,6 +23,8 @@ public class ChatClient {
     private final RoutingTableManager routingTableManager;
 
     private final Thread accThread;
+    private final RoutingTableThread routingThread;
+    private final Timer timer;
     //private final Thread routThread;
 
     /**
@@ -42,13 +46,15 @@ public class ChatClient {
         }
 
         this.accThread = new Thread(new AcceptThread(this.serverSocket, this.name, this.activeConnectionManager, this.routingTableManager));
-
+        this.routingThread = new RoutingTableThread(routingTableManager, activeConnectionManager, name);
+        timer = new Timer();
         //TODO
         //this.routThread = new Thread(new RoutingThread());
     }
 
     public void startClient() {
         this.accThread.start();
+        timer.scheduleAtFixedRate(routingThread, 5000, 5000);
         // TODO
         //this.routThread.start();
     }
@@ -69,29 +75,14 @@ public class ChatClient {
      */
     public void sendMessage(String payload, String destinationName) {
         Socket pickedSocket = activeConnectionManager.getSocketFromName(destinationName);
-        Message message = new CommunicationMessage(pickedSocket,this.name, payload);
-        message.sendTo(destinationName);
+        Message message = new CommunicationMessage(this.name, payload);
+        message.sendTo(pickedSocket, destinationName);
     }
 
     public void sendName(Socket socket){
-        Message message = new ConnectionMessage(socket, this.name);
-        message.sendTo(ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
+        Message message = new ConnectionMessage(this.name);
+        message.sendTo(socket, ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
     }
-
-    //TODO: eventuell ersetzen mit sendMessage mit einem Parameter TYPE
-    public void sendRouting(byte[] routingInfos, Socket socket, String destinationName) {
-        /*
-        byte[] routingWithBasisHeader = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE + routingInfos.length];
-        addBasisheader(routingWithBasisHeader, destinationName, ProtocolConstants.TYPE_ROUTINGPAKET);
-        for(int i = ProtocolConstants.BASISHEADER_SIZE_IN_BYTE, j = 0; i < routingWithBasisHeader.length; i++, j++) {
-            routingWithBasisHeader[i] = routingInfos[j];
-        }
-        send(routingWithBasisHeader, socket);
-         */
-
-        //TODO: RoutingMessage schreiben für routing Packete
-    }
-
 
     /**
      * This method is used, when the ChatClient wants to Connect to another Client. The other Client is referenced
@@ -114,6 +105,10 @@ public class ChatClient {
         } catch (NullPointerException no) {
             System.out.println("Cannot close a Connection if there is no Connection");
         }
+    }
+
+    public void stopRouting() {
+        timer.cancel();
     }
 
     public String getName() {

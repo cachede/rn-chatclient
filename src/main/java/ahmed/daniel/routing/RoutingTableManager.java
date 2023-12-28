@@ -1,12 +1,13 @@
 package ahmed.daniel.routing;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Iterator;
 import java.util.LinkedList;
 
 public class RoutingTableManager{
 
-    private List<RoutingTable> routingtables;
+    private final List<RoutingTable> routingtables;
 
     public RoutingTableManager() {
         this.routingtables = new LinkedList<>();
@@ -18,17 +19,18 @@ public class RoutingTableManager{
     
     public synchronized void addRoutingTableEntry(String destination, String nextHop, byte hopCount){
         RoutingTable newRoutingTable = new RoutingTable(destination, nextHop, hopCount);
+        if(routingtables.contains(newRoutingTable)) {
+            return;
+        }
         this.routingtables.add(newRoutingTable);
     }
 
+    public synchronized int getSize() {
+        return routingtables.size();
+    }
+
     public void removeRoutingTableEntry(String source) {
-        Iterator<RoutingTable> iterator = routingtables.iterator();
-        while (iterator.hasNext()) {
-            RoutingTable routingTable = iterator.next();
-            if (routingTable.getNextHop().equals(source)) {
-                iterator.remove();
-            }
-        }
+        routingtables.removeIf(routingTable -> routingTable.getNextHop().equals(source));
     }
 
     public void printAllRoutingTables(){

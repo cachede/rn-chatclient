@@ -71,7 +71,6 @@ public class ActiveConnectionManager{
 
     }
 
-
     public void shutdownReceiverPool(){
         this.receiverPool.shutdown();
     }

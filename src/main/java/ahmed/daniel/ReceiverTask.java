@@ -1,5 +1,6 @@
 package ahmed.daniel;
 
+import ahmed.daniel.Messages.CommunicationMessage;
 import ahmed.daniel.Messages.ConnectionMessage;
 import ahmed.daniel.Messages.Message;
 import ahmed.daniel.routing.RoutingTable;
@@ -44,9 +45,9 @@ public class ReceiverTask implements Runnable{
             while(true) {
                 in.readFully(buffer);
 
-                System.out.println("Buffer-Bytes: " + buffer);
-                String res = new String(buffer, "UTF-8");
-                System.out.println("Buffer-String: " + res);
+                //System.out.println("Buffer-Bytes: " + buffer);
+                //String res = new String(buffer, "UTF-8");
+                //System.out.println("Buffer-String: " + res);
 
 
                 switch(buffer[0]) {
@@ -70,48 +71,63 @@ public class ReceiverTask implements Runnable{
                         String sourceName = new String(sourceNameAsBytes, "UTF-8") ;
 
                         activeConnectionManager.addActiveConnection(sourceName, this.socket);
-                        // Here we had to swap the positions of destName and sourceName TODO glaub das ist falsch + 1 magic number
-                        routingTableManager.addRoutingTableEntry(destinationName, sourceName, (byte)1);
+                        routingTableManager.addRoutingTableEntry(sourceName, sourceName, (byte)1);
 
+// DAN -> AHM dest= ZZZ
                         // Send our name to source if our name is not set for them yet
                         if (destinationName.equals(ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET)){
-                            Message namePackage  = new ConnectionMessage(this.socket, this.name);
-                            namePackage.sendTo(sourceName);
+                            Message namePackage  = new ConnectionMessage(this.name);
+                            namePackage.sendTo(this.socket, sourceName);
                         }
 
-                        System.out.println("NAMENPAKET");
+                        //System.out.println("NAMENPAKET");
                     }
                     break;
                     case ProtocolConstants.TYPE_ROUTINGPAKET: {
-                        System.out.println("Routingpaket");
+                        //System.out.println("Routingpaket");
                         int amountOfRoutingTables = buffer[8];
                         byte[] routingMessage = Arrays.copyOfRange(buffer, 9, buffer.length);
                                                 
                         for(int i = 0; i < amountOfRoutingTables; i++) {
                             int offset = i* ProtocolConstants.ROUTING_ENTRY_SIZE_IN_BYTE;
 
-                            // Source
-                            int startIndex = offset;
-                            int stopIndex = startIndex + ProtocolConstants.ROUTING_SOURCE_SIZE_IN_BYTE;
-                            byte[] sourceBytes = Arrays.copyOfRange(routingMessage, offset, stopIndex);
-                            String source = new String(sourceBytes, "UTF-8");
-
                             // Destination
-                            startIndex = stopIndex;
-                            stopIndex = startIndex + ProtocolConstants.ROUTING_DESTINATION_SIZE_IN_BYTE;
-                            byte[] destinationBytes = Arrays.copyOfRange(routingMessage, startIndex, stopIndex);
+                            int startIndex = offset;
+                            int stopIndex = startIndex + ProtocolConstants.ROUTING_DESTINATION_SIZE_IN_BYTE;
+                            byte[] destinationBytes = Arrays.copyOfRange(routingMessage, offset, stopIndex);
                             String destination = new String(destinationBytes, "UTF-8");
+
+                            // Next Hop
+                            startIndex = stopIndex;
+                            stopIndex = startIndex + ProtocolConstants.ROUTING_NEXT_HOP_SIZE_IN_BYTE;
+                            byte[] nextHopBytes = Arrays.copyOfRange(routingMessage, startIndex, stopIndex);
+                            String nextHop = new String(nextHopBytes, "UTF-8");
 
                             // HopCount
                             startIndex = stopIndex;
                             byte hopCountBytes = routingMessage[startIndex];
                             
                             // For Debugging:
-                            RoutingTable routingTable = new RoutingTable(source, destination, hopCountBytes);
-                            System.out.println("In Recv erstellter Table:");
-                            routingTable.printRoutingTable();
+                            RoutingTable routingTable = new RoutingTable(destination, nextHop, hopCountBytes);
+                            //System.out.println("In Recv erstellter Table:");
+                            //routingTable.printRoutingTable();
 
-                            routingTableManager.addRoutingTableEntry(source, destination, hopCountBytes);
+
+
+                            //TODO Add active trasitive connections
+                            byte[] sourceNameAsBytes = new byte[ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE];
+                            for(int k = ProtocolConstants.SOURCE_NETWORK_NAME_LOWER, j = 0; k < ProtocolConstants.SOURCE_NETWORK_NAME_HIGHER; k++, j++) {
+                                sourceNameAsBytes[j] = buffer[k];
+                            }
+
+                            String sourceName = new String(sourceNameAsBytes, "UTF-8") ;
+                            // TODO Check if we have next hop in routingtable -> Can we check if we have it in active connections?
+                            if(!destination.equals(this.name) && !activeConnectionManager.getAllActiveConnectionName().contains(destination)){ //TODO: Check: if new One has lower hopCount
+                                Socket socket = activeConnectionManager.getSocketFromName(sourceName);
+                                activeConnectionManager.addActiveConnection(destination, socket);
+                                routingTableManager.addRoutingTableEntry(destination, sourceName, hopCountBytes); // TODO HOPCOUNT
+                            }
+
                         }                    
                     }
                     break;
@@ -120,9 +136,12 @@ public class ReceiverTask implements Runnable{
                         //Richtig wäre: Jede Nachricht die ankommt MUSS gecheckt werden, ob sie an uns gerichtet war.
                         // ----------> WENN JA: Print auf STDOUT
                         //-----------> WENN NEIN: Leite weiter an richtigen Socket
+
+                        // TODO Refactor
+
                         byte[] sourceNameAsBytes = new byte[ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE];
                         for(int i = ProtocolConstants.SOURCE_NETWORK_NAME_LOWER, j = 0; i < ProtocolConstants.SOURCE_NETWORK_NAME_HIGHER; i++, j++) {
-                            sourceNameAsBytes[j] = buffer[j];
+                            sourceNameAsBytes[j] = buffer[i];
                         }
 
                         String sourceName = new String(sourceNameAsBytes, "UTF-8");
@@ -130,7 +149,23 @@ public class ReceiverTask implements Runnable{
                         byte[] message = Arrays.copyOfRange(buffer, 8, buffer.length);
                         String messageStr = new String(message, "UTF-8");
 
-                        System.out.println(sourceName + ": " + messageStr);
+                        byte[] destinationNameAsBytes = new byte[ProtocolConstants.DESTINATION_NETWORK_NAME_SIZE_IN_BYTE];
+                        for(int i = ProtocolConstants.DESTINATION_NETWORK_NAME_LOWER, j = 0; i < ProtocolConstants.DESTINATION_NETWORK_NAME_HIGHER; i++, j++) {
+                            destinationNameAsBytes[j] = buffer[i];
+                        }
+
+                        String destinationName = new String(destinationNameAsBytes, "UTF-8");
+
+
+                        if(destinationName.equals(this.name)){
+                            System.out.println(sourceName + ": " + messageStr);
+                        }
+                        else if (activeConnectionManager.getAllActiveConnectionName().contains(destinationName)){
+                            System.out.println("Hier sollten wir weiterleiten an " + destinationName);
+                            Message passMessage = new CommunicationMessage(sourceName, messageStr);
+                            Socket passSocket = activeConnectionManager.getSocketFromName(destinationName);
+                            passMessage.sendTo(passSocket, destinationName);
+                        }
 
                     }
                     break;
