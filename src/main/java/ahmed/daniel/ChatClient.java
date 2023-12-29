@@ -47,9 +47,8 @@ public class ChatClient {
 
         this.accThread = new Thread(new AcceptThread(this.serverSocket, this.name, this.activeConnectionManager, this.routingTableManager));
         this.routingThread = new RoutingTableThread(routingTableManager, activeConnectionManager, name);
-        timer = new Timer();
-        //TODO
-        //this.routThread = new Thread(new RoutingThread());
+        this.timer = new Timer();
+
     }
 
     public void startClient() {

@@ -49,6 +49,7 @@ public class ReceiverTask implements Runnable{
                 //String res = new String(buffer, "UTF-8");
                 //System.out.println("Buffer-String: " + res);
 
+                //TODO Extract header before switch case
 
                 switch(buffer[0]) {
                     case ProtocolConstants.TYPE_VERBINDUNGSPAKET: {
@@ -79,17 +80,14 @@ public class ReceiverTask implements Runnable{
                             Message namePackage  = new ConnectionMessage(this.name);
                             namePackage.sendTo(this.socket, sourceName);
                         }
-
-                        //System.out.println("NAMENPAKET");
                     }
                     break;
                     case ProtocolConstants.TYPE_ROUTINGPAKET: {
-                        //System.out.println("Routingpaket");
                         int amountOfRoutingTables = buffer[8];
                         byte[] routingMessage = Arrays.copyOfRange(buffer, 9, buffer.length);
                                                 
                         for(int i = 0; i < amountOfRoutingTables; i++) {
-                            int offset = i* ProtocolConstants.ROUTING_ENTRY_SIZE_IN_BYTE;
+                            int offset = i * ProtocolConstants.ROUTING_ENTRY_SIZE_IN_BYTE;
 
                             // Destination
                             int startIndex = offset;
@@ -112,8 +110,6 @@ public class ReceiverTask implements Runnable{
                             //System.out.println("In Recv erstellter Table:");
                             //routingTable.printRoutingTable();
 
-
-
                             //TODO Add active trasitive connections
                             byte[] sourceNameAsBytes = new byte[ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE];
                             for(int k = ProtocolConstants.SOURCE_NETWORK_NAME_LOWER, j = 0; k < ProtocolConstants.SOURCE_NETWORK_NAME_HIGHER; k++, j++) {
@@ -122,10 +118,17 @@ public class ReceiverTask implements Runnable{
 
                             String sourceName = new String(sourceNameAsBytes, "UTF-8") ;
                             // TODO Check if we have next hop in routingtable -> Can we check if we have it in active connections?
-                            if(!destination.equals(this.name) && !activeConnectionManager.getAllActiveConnectionName().contains(destination)){ //TODO: Check: if new One has lower hopCount
-                                Socket socket = activeConnectionManager.getSocketFromName(sourceName);
-                                activeConnectionManager.addActiveConnection(destination, socket);
-                                routingTableManager.addRoutingTableEntry(destination, sourceName, hopCountBytes); // TODO HOPCOUNT
+                            if(!destination.equals(this.name) && !nextHop.equals(this.name)){
+                                // wenn wir active con schon haben -> gucken ob hop count von neuer kleiner ist -> dann ersetzen
+                                byte currentHopCountForDestination = routingTableManager.getMinHopCountForDestination(destination);
+
+                                // If we do not have a Route yet or the new Route is shorter, we add it
+                                if(currentHopCountForDestination == ProtocolConstants.ROUTING_MAX_HOPCOUNT || hopCountBytes < currentHopCountForDestination){
+                                    Socket socket = activeConnectionManager.getSocketFromName(sourceName);
+                                    activeConnectionManager.addActiveConnection(destination, socket);
+                                }
+
+                                routingTableManager.addRoutingTableEntry(destination, sourceName, (byte)(hopCountBytes+1) );
                             }
 
                         }                    

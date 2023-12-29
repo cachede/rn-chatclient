@@ -1,16 +1,10 @@
 package ahmed.daniel.Messages;
 
-import ahmed.daniel.Messages.Message;
 import ahmed.daniel.ProtocolConstants;
 import ahmed.daniel.routing.RoutingTable;
-import ahmed.daniel.routing.RoutingTableManager;
 
 import java.io.UnsupportedEncodingException;
-import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Arrays;
 
 
 //TODO whole class is not finished
@@ -24,8 +18,7 @@ public class RoutingMessage extends Message {
 
     @Override
     protected byte[] getPayloadInBytes() throws UnsupportedEncodingException {
-
-        byte[] byteStream = new byte[payload.size() * ProtocolConstants.ROUTING_ENTRY_SIZE_IN_BYTE + ProtocolConstants.ROUTING_ENTRY_SIZE_IN_BYTE];
+        byte[] byteStream = new byte[payload.size() * ProtocolConstants.ROUTING_ENTRY_SIZE_IN_BYTE + ProtocolConstants.ROUTING_AMOUNT_OF_PACKETS_SIZE_IN_BYTE];
         int byteStreamIndex = 0;
         byteStream[byteStreamIndex++] = (byte)payload.size();
         for (RoutingTable routingTable : payload){
