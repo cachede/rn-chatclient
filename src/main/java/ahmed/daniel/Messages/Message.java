@@ -32,16 +32,12 @@ public abstract class Message {
 
     protected abstract byte[] getPayloadInBytes() throws UnsupportedEncodingException;
 
-    public void sendTo(Socket socket, String destinationName){
-        try{
-            byte[] message = buildMessage(destinationName);
-            DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-            out.write(message);
-        } catch (IOException e) {
-            System.out.println("ERROR WITH DATAOUTPUTSTREAM IN SEND");
-        } catch (NullPointerException nu) {
-            System.out.println("A Connection should be set before sending a Message");
-        }
+    public void sendTo(Socket socket, String destinationName) throws IOException{
+
+        byte[] message = buildMessage(destinationName);
+        DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+        out.write(message);
+
     }
 
     private byte[] fillWithFillbytes(byte[] byteStream) {

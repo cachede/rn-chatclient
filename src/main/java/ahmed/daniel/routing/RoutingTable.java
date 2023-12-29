@@ -31,12 +31,17 @@ public class RoutingTable {
     }
 
     public void printRoutingTable() {
-        System.out.println("------------------------");
-        System.out.println("Routing Table:");
-        System.out.println("Destination: " + this.destination);
-        System.out.println("Next Hop: " + this.nextHop);
-        System.out.println("Hop Count: " + this.hopCount);
-        System.out.println("------------------------");
+        System.out.println(this.toString());
+    }
+
+    @Override
+    public String toString(){
+        return "------------------------\n" +
+                "Routingtable:\n" +
+                "Destination:\t" + this.destination + "\n" +
+                "Next Hop:\t" + this.nextHop + "\n" +
+                "Hop Count:\t" + this.hopCount + "\n" +
+                "------------------------\n";
     }
 
     @Override

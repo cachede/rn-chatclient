@@ -51,9 +51,9 @@ public class UI {
                 }
                 case QUIT_PROGRAM: {
                     System.out.println("Quitting Program ...");
+                    chatClient.stopRouting();
                     chatClient.stopSocket();
                     chatClient.stopActiveConnections();
-                    chatClient.stopRouting();
                     scanner.close();
                     running = false;
                     break;

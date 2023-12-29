@@ -4,6 +4,7 @@ import ahmed.daniel.ActiveConnectionManager;
 import ahmed.daniel.Messages.Message;
 import ahmed.daniel.Messages.RoutingMessage;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.util.TimerTask;
 
@@ -27,9 +28,18 @@ public class RoutingTableThread extends TimerTask {
         List<RoutingTable> routingList = List.copyOf(this.routingTableManager.getRoutingTables());
         Message routingMessage = new RoutingMessage(this.name, routingList);
         for(String connection : this.activeConnectionManager.getAllActiveConnectionName()){
-            Socket conSocket = activeConnectionManager.getSocketFromName(connection);
-            //System.out.println("WIR HABEN IGEL GESENDET!");
-            routingMessage.sendTo(conSocket, connection);
+            // Only send to direct connections (with hopCount = 1)
+            if(routingTableManager.getMinHopCountForDestination(connection) == 1){
+                Socket conSocket = activeConnectionManager.getSocketFromName(connection);
+                //System.out.println("WIR HABEN IGEL GESENDET!");
+                try{
+                    routingMessage.sendTo(conSocket, connection);
+                } catch (IOException ioException){
+                    activeConnectionManager.removeActiveConnection(connection);
+                    routingTableManager.removeRoutingTableEntry(connection);
+                }
+
+            }
         }
     }
 }

@@ -54,8 +54,6 @@ public class ChatClient {
     public void startClient() {
         this.accThread.start();
         timer.scheduleAtFixedRate(routingThread, 5000, 5000);
-        // TODO
-        //this.routThread.start();
     }
 
     public Socket accept() {
@@ -73,12 +71,23 @@ public class ChatClient {
      * @param destinationName   -   Name of the Destination which should receive the Message
      */
     public void sendMessage(String payload, String destinationName) {
+        if (!activeConnectionManager.getAllActiveConnectionName().contains(destinationName)) {
+            System.out.println("You have no active Connection to " + destinationName);
+            return;
+        }
+
         Socket pickedSocket = activeConnectionManager.getSocketFromName(destinationName);
         Message message = new CommunicationMessage(this.name, payload);
-        message.sendTo(pickedSocket, destinationName);
-    }
 
-    public void sendName(Socket socket){
+        try {
+            message.sendTo(pickedSocket, destinationName);
+
+        } catch (IOException io){
+            activeConnectionManager.removeActiveConnection(destinationName);
+            routingTableManager.removeRoutingTableEntry(destinationName);
+        }
+    }
+    public void sendName(Socket socket) throws IOException{
         Message message = new ConnectionMessage(this.name);
         message.sendTo(socket, ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
     }
@@ -119,18 +128,12 @@ public class ChatClient {
             //Connect to new Client
             Socket newSocket = connectTo(InetAddress.getByName(ipv4address), port);
 
-            //TODO Here we have to get destinationname -> wait on socket with new socket
-            // Discard new connection if we dont get a valid name
-
-
-            // Inform the Managers and Start Recv-Thread
-            //activeConnectionManager.addActiveConnection(destinationName, newSocket);
+            // Get name from new Client
             Runnable receiverTask = new ReceiverTask(newSocket, this.name, activeConnectionManager, routingTableManager);
             activeConnectionManager.addReceivingTask(receiverTask);
-            //routingTableManager.addRoutingTableEntry(getName(), destinationName, (short)port, (byte)1);
         }
         catch(IOException ie){
-            System.out.println("Konnte keine Verbindung herstellen zu " + ipv4address + "mit Port " + port);
+            System.out.println("Konnte keine Verbindung herstellen zu " + ipv4address + " mit Port " + port);
         }
     }
 

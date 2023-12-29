@@ -39,6 +39,15 @@ public class ActiveConnectionManager{
         return activeConnections.keySet();
     }
 
+    public synchronized void removeActiveConnection(String toBeRemovedName){
+        try {
+            this.activeConnections.get(toBeRemovedName).close();
+            this.activeConnections.remove(toBeRemovedName);
+        } catch (IOException e) {
+            System.out.println("RemoveActionConnection konnte Socket nicht schließen");
+        }
+    }
+
     public synchronized Collection<Socket> getAllActiveConnectionSockets(){
         return activeConnections.values();
     }
