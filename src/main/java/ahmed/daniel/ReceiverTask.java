@@ -39,6 +39,7 @@ public class ReceiverTask implements Runnable{
 
             byte[] buffer = new byte[ProtocolConstants.MAX_MESSAGE_LENGTH_IN_BYTES];
             while(true) {
+
                 in.readFully(buffer);
 
                 //TODO Extract header before switch case

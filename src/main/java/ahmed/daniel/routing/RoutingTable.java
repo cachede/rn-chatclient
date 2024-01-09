@@ -1,5 +1,7 @@
 package ahmed.daniel.routing;
 
+import ahmed.daniel.ProtocolConstants;
+
 import java.util.Objects;
 
 public class RoutingTable {
@@ -29,6 +31,13 @@ public class RoutingTable {
     public byte getHopCount() {
         return this.hopCount;
     }
+    public void setHopCount(byte newHopCount){
+        this.hopCount = newHopCount;
+    }
+
+    public void setAsUnreachable(){
+        this.hopCount = ProtocolConstants.ROUTING_DESTINATION_UNREACHABLE;
+    }
 
     public void printRoutingTable() {
         System.out.println(this.toString());
@@ -49,7 +58,7 @@ public class RoutingTable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RoutingTable that = (RoutingTable) o;
-        return hopCount == that.hopCount && Objects.equals(destination, that.destination) && Objects.equals(nextHop, that.nextHop);
+        return Objects.equals(destination, that.destination) && Objects.equals(nextHop, that.nextHop);
     }
 
     @Override

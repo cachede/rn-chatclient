@@ -6,6 +6,7 @@ import ahmed.daniel.Messages.RoutingMessage;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Iterator;
 import java.util.TimerTask;
 
 import java.util.List;
@@ -45,5 +46,13 @@ public class RoutingTableThread extends TimerTask {
                 }
             }
         }
+    }
+
+    private List<RoutingTable> getExtractedRoutingTable(List<RoutingTable> routingTables, String name){
+        List<RoutingTable> newRoutingTable = new java.util.ArrayList<>(List.copyOf(routingTables));
+
+        newRoutingTable.removeIf(routingTable -> routingTable.getDestination().equals(name) || routingTable.getNextHop().equals(name));
+
+        return newRoutingTable;
     }
 }

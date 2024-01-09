@@ -1,10 +1,11 @@
 package ahmed.daniel.routing;
 
+import ahmed.daniel.Messages.ConnectionMessage;
+import ahmed.daniel.Messages.RoutingMessage;
 import ahmed.daniel.ProtocolConstants;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 public class RoutingTableManager{
@@ -20,19 +21,39 @@ public class RoutingTableManager{
     }
     
     public synchronized void addRoutingTableEntry(String destination, String nextHop, byte hopCount){
+        // Unreachable
+        if(hopCount >= ProtocolConstants.ROUTING_DESTINATION_UNREACHABLE) {
+            hopCount = ProtocolConstants.ROUTING_DESTINATION_UNREACHABLE;
+        }
+
         RoutingTable newRoutingTable = new RoutingTable(destination, nextHop, hopCount);
-        if(routingtables.contains(newRoutingTable)) {
+        if(this.routingtables.contains(newRoutingTable)) {
+            updateHopCountOfRoutingTable(destination, nextHop, hopCount);
             return;
         }
+
         this.routingtables.add(newRoutingTable);
+    }
+
+
+    private void updateHopCountOfRoutingTable(String destination, String nextHop, byte newHopCount){
+        for(RoutingTable routingTable : this.routingtables){
+            if(routingTable.getDestination().equals(destination) && routingTable.getNextHop().equals(nextHop)){
+                routingTable.setHopCount(newHopCount);
+            }
+        }
     }
 
     public synchronized int getSize() {
         return routingtables.size();
     }
 
-    public void removeRoutingTableEntry(String source) {
-        routingtables.removeIf(routingTable -> routingTable.getNextHop().equals(source));
+    public void setSourceAsUnreachable(String source) {
+        for(RoutingTable routingTable : this.routingtables){
+            if (routingTable.getDestination().equals(source)){
+               routingTable.setAsUnreachable();
+            }
+        }
     }
 
     /**
