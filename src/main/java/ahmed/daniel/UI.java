@@ -46,7 +46,10 @@ public class UI {
                 }
                 case SHOW_PARTICIPANTS: {
                     System.out.println("Showing Participants ...");
-                    chatClient.printActiveConnections();        //TODO: should show transitive Partners
+                    for(String name : chatClient.getActiveConnectionNames()) {
+                        System.out.println(name);
+                    }
+
                     break;
                 }
                 case QUIT_PROGRAM: {

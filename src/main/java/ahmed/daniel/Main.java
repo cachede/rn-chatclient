@@ -32,19 +32,17 @@ public class Main {
     // arg[0] = IP-Adresse
     // arg[1] = Port
     // arg[2] = Name
-    public static void main(String[] args) throws UnknownHostException {
+    public static void main(String[] args) {
 
-        //Initialisation of all Components.
-        ChatClient client = new ChatClient(InetAddress.getByName(args[0]), Integer.parseInt(args[1]), args[2]);
-        UI ui = new UI(client);
-
-        // start client
-        client.startClient();
-
-        //Main Loop
-        ui.mainLoop();
-
-
+        //Maybe ask the user for input until the input is correct
+        try {
+            ChatClient client = new ChatClient(InetAddress.getByName(args[0]), Integer.parseInt(args[1]), args[2]);
+            UI ui = new UI(client);
+            client.startClient();
+            ui.mainLoop();
+        } catch (IOException ioException) {
+            System.err.println("The entered IP-Address or Port are not valid, try again");
+        }
     }
 
 }

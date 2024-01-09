@@ -28,11 +28,10 @@ public class AcceptThread implements Runnable {
             try {
                 newSocket = this.serverSocket.accept();
             } catch (IOException e) {
-                //TODO
                 break;
             }
 
-            System.out.println("NEW CONNECTION: " + newSocket.getPort());
+            //System.out.println("NEW CONNECTION: " + newSocket.getPort());
             Runnable receiverTask = new ReceiverTask(newSocket, this.name, this.activeConnectionManager, this.routingTableManager);
             activeConnectionManager.addReceivingTask(receiverTask);
         }

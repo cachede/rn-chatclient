@@ -54,6 +54,6 @@ public class RoutingTable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(destination, nextHop, hopCount);
+        return Objects.hash(destination, nextHop);
     }
 }

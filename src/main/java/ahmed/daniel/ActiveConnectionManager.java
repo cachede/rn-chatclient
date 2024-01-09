@@ -48,10 +48,6 @@ public class ActiveConnectionManager{
         }
     }
 
-    public synchronized Collection<Socket> getAllActiveConnectionSockets(){
-        return activeConnections.values();
-    }
-
     public synchronized Set<Entry<String, Socket>> getEntrySet() {
         return activeConnections.entrySet();
     }
@@ -69,15 +65,8 @@ public class ActiveConnectionManager{
         }
     }
 
-    public void printActiveConnections(){
-        for (String name : this.activeConnections.keySet()) { 
-            System.out.println(name);
-        }
-    }
-
-    public void sendRoutingTableToAllActiveConnections(List<RoutingTable> routingTable) {
-        // Send routingtable to all active connections
-
+    public Set<String> getActiveConnections() {
+        return this.activeConnections.keySet();
     }
 
     public void shutdownReceiverPool(){

@@ -11,7 +11,7 @@ public class ConnectionMessage extends Message {
     }
 
     @Override
-    protected byte[] getPayloadInBytes() throws UnsupportedEncodingException {
+    protected byte[] getPayloadInBytes() {
         return new byte[0];
     }
 }

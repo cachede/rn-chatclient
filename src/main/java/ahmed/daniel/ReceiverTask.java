@@ -17,14 +17,11 @@ public class ReceiverTask implements Runnable{
     private final ActiveConnectionManager activeConnectionManager;
     private final RoutingTableManager routingTableManager;
 
-    public ReceiverTask(Socket socket, String name, ActiveConnectionManager activeConnections, RoutingTableManager routingTableManager){
+    public  ReceiverTask(Socket socket, String name, ActiveConnectionManager activeConnections, RoutingTableManager routingTableManager){
         this.socket = socket;
         this.name = name;
         this.activeConnectionManager = activeConnections;
         this.routingTableManager = routingTableManager;
-        if (this.socket == null) {
-            System.out.println("DER IGEL IST HEUTE SEHR STACHELIG");
-        }
     }
     
     /**
@@ -38,16 +35,11 @@ public class ReceiverTask implements Runnable{
      */
     private void receiveMessage() {
         try {
-            //BufferedReader in = new BufferedReader(new InputStreamReader(this.socket.getInputStream(), "UTF-8")); //Wenn es noch keine Verbindung gibt Big Problem
             DataInputStream in = new DataInputStream(socket.getInputStream());
 
             byte[] buffer = new byte[ProtocolConstants.MAX_MESSAGE_LENGTH_IN_BYTES];
             while(true) {
                 in.readFully(buffer);
-
-                //System.out.println("Buffer-Bytes: " + buffer);
-                //String res = new String(buffer, "UTF-8");
-                //System.out.println("Buffer-String: " + res);
 
                 //TODO Extract header before switch case
 
@@ -104,11 +96,6 @@ public class ReceiverTask implements Runnable{
                             // HopCount
                             startIndex = stopIndex;
                             byte hopCountBytes = routingMessage[startIndex];
-                            
-                            // For Debugging:
-                            RoutingTable routingTable = new RoutingTable(destination, nextHop, hopCountBytes);
-                            //System.out.println("In Recv erstellter Table:");
-                            //routingTable.printRoutingTable();
 
                             //TODO Add active trasitive connections
                             byte[] sourceNameAsBytes = new byte[ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE];
@@ -116,8 +103,7 @@ public class ReceiverTask implements Runnable{
                                 sourceNameAsBytes[j] = buffer[k];
                             }
 
-                            String sourceName = new String(sourceNameAsBytes, "UTF-8") ;
-                            // TODO Check if we have next hop in routingtable -> Can we check if we have it in active connections?
+                            String sourceName = new String(sourceNameAsBytes, "UTF-8");
                             if(!destination.equals(this.name) && !nextHop.equals(this.name)){
                                 // wenn wir active con schon haben -> gucken ob hop count von neuer kleiner ist -> dann ersetzen
                                 byte currentHopCountForDestination = routingTableManager.getMinHopCountForDestination(destination);

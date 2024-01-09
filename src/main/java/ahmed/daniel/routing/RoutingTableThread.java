@@ -24,21 +24,25 @@ public class RoutingTableThread extends TimerTask {
 
     @Override
     public void run() {
-        //System.out.println("IGEL STARTKLAR");
-        List<RoutingTable> routingList = List.copyOf(this.routingTableManager.getRoutingTables());
-        Message routingMessage = new RoutingMessage(this.name, routingList);
-        for(String connection : this.activeConnectionManager.getAllActiveConnectionName()){
-            // Only send to direct connections (with hopCount = 1)
-            if(routingTableManager.getMinHopCountForDestination(connection) == 1){
-                Socket conSocket = activeConnectionManager.getSocketFromName(connection);
-                //System.out.println("WIR HABEN IGEL GESENDET!");
-                try{
-                    routingMessage.sendTo(conSocket, connection);
-                } catch (IOException ioException){
-                    activeConnectionManager.removeActiveConnection(connection);
-                    routingTableManager.removeRoutingTableEntry(connection);
-                }
 
+        List<RoutingTable> routingList = List.copyOf(this.routingTableManager.getRoutingTables());
+        //Message routingMessage = new RoutingMessage(this.name, routingList);
+
+        Iterator<String> iterator = this.activeConnectionManager.getAllActiveConnectionName().iterator();
+
+        while(iterator.hasNext()) {
+            String connectionName = iterator.next();
+            Message routingMessage = new RoutingMessage(this.name, getExtractedRoutingTable(routingList, connectionName));
+
+            if(routingTableManager.getMinHopCountForDestination(connectionName) == 1) {
+                Socket conSocket = activeConnectionManager.getSocketFromName(connectionName);
+
+                try {
+                    routingMessage.sendTo(conSocket, connectionName);
+                } catch (IOException ioException) {
+                    routingTableManager.setSourceAsUnreachable(connectionName);
+                    iterator.remove();
+                }
             }
         }
     }

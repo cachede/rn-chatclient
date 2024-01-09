@@ -8,11 +8,13 @@ import ahmed.daniel.routing.RoutingTableThread;
 
 import java.net.*;
 import java.io.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 
 public class ChatClient {
-    private ServerSocket serverSocket;
-    private String name;
+    private final ServerSocket serverSocket;
+    private final String name;
     //The started Clients IP-Address
     private InetAddress ipAddress;
 
@@ -25,25 +27,17 @@ public class ChatClient {
     private final Thread accThread;
     private final RoutingTableThread routingThread;
     private final Timer timer;
-    //private final Thread routThread;
+    private final static int delay = 5000;
+    private final static int period = 5000;
 
-    /**
-     * This is very important. It shows the possible IPv4-Addresses which can be addressed. Usually gets filled by
-     * the receiveMessage()-Method (Eigenes Protokoll)
-     *
-     */
-    public ChatClient(InetAddress ipAddress, int port, String name) {
+
+    public ChatClient(InetAddress ipAddress, int port, String name) throws IOException {
         this.ipAddress = ipAddress;
         this.port = port;
         this.name = name;
         this.activeConnectionManager = new ActiveConnectionManager();
         this.routingTableManager = new RoutingTableManager();
-        try {
-            this.serverSocket = new ServerSocket(this.port, 5, this.ipAddress);
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.out.println("ERROR CREATING SERVER SOCKET");
-        }
+        this.serverSocket = new ServerSocket(this.port, 5, this.ipAddress);
 
         this.accThread = new Thread(new AcceptThread(this.serverSocket, this.name, this.activeConnectionManager, this.routingTableManager));
         this.routingThread = new RoutingTableThread(routingTableManager, activeConnectionManager, name);
@@ -53,16 +47,38 @@ public class ChatClient {
 
     public void startClient() {
         this.accThread.start();
-        timer.scheduleAtFixedRate(routingThread, 5000, 5000);
+        this.timer.scheduleAtFixedRate(routingThread, delay, period);
     }
 
-    public Socket accept() {
-        try {
-            return this.serverSocket.accept();
-        }catch(IOException e) {
-            System.out.println("Konnte auf keine Verbindung listen");
-            return null;
+    public void addNewConnection(String ipv4address, int port) {
+        try{
+            //Connect to new Client
+            Socket newSocket = connectTo(InetAddress.getByName(ipv4address), port);
+
+            // Get name from new Client
+            Runnable receiverTask = new ReceiverTask(newSocket, this.name, activeConnectionManager, routingTableManager);
+            activeConnectionManager.addReceivingTask(receiverTask);
         }
+        catch(IOException ie){
+            System.out.println("Konnte keine Verbindung herstellen zu " + ipv4address + " mit Port " + port);
+        }
+    }
+
+    /**
+     * This method is used, when the ChatClient wants to Connect to another Client. The other Client is referenced
+     * by his IPv4-Address.
+     * @param ipAddress -   IPv4-Address of the desired Client
+     * @param port      -   Port on which you want to connect
+     */
+    private Socket connectTo(InetAddress ipAddress, int port) throws IOException {
+        Socket newSocket = new Socket(ipAddress, port);
+        sendName(newSocket);
+        return newSocket;
+    }
+
+    private void sendName(Socket socket) throws IOException {
+        Message message = new ConnectionMessage(this.name);
+        message.sendTo(socket, ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
     }
 
     /**
@@ -83,25 +99,9 @@ public class ChatClient {
             message.sendTo(pickedSocket, destinationName);
 
         } catch (IOException io){
-            activeConnectionManager.removeActiveConnection(destinationName);
-            routingTableManager.removeRoutingTableEntry(destinationName);
+            activeConnectionManager.removeActiveConnection(destinationName);    //Zu dem man sendet kann schon disconnected sein -> Test
+            routingTableManager.setSourceAsUnreachable(destinationName);
         }
-    }
-    public void sendName(Socket socket) throws IOException{
-        Message message = new ConnectionMessage(this.name);
-        message.sendTo(socket, ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
-    }
-
-    /**
-     * This method is used, when the ChatClient wants to Connect to another Client. The other Client is referenced
-     * by his IPv4-Address.
-     * @param ipAddress -   IPv4-Address of the desired Client
-     * @param port      -   Port on which you want to connect
-     */
-    public Socket connectTo(InetAddress ipAddress, int port) throws IOException, NullPointerException, IllegalArgumentException{
-        Socket newSocket = new Socket(ipAddress, port);
-        sendName(newSocket); // unseren namen schicken mit flag 0
-        return newSocket;
     }
 
     public void stopSocket() {
@@ -110,8 +110,6 @@ public class ChatClient {
 
         } catch (IOException e) {
             System.out.println("Stopping Socket");
-        } catch (NullPointerException no) {
-            System.out.println("Cannot close a Connection if there is no Connection");
         }
     }
 
@@ -119,30 +117,12 @@ public class ChatClient {
         timer.cancel();
     }
 
-    public String getName() {
-        return this.name;
-    }
-
-    public void addNewConnection(String ipv4address, int port) {
-        try{
-            //Connect to new Client
-            Socket newSocket = connectTo(InetAddress.getByName(ipv4address), port);
-
-            // Get name from new Client
-            Runnable receiverTask = new ReceiverTask(newSocket, this.name, activeConnectionManager, routingTableManager);
-            activeConnectionManager.addReceivingTask(receiverTask);
-        }
-        catch(IOException ie){
-            System.out.println("Konnte keine Verbindung herstellen zu " + ipv4address + " mit Port " + port);
-        }
-    }
-
     // Redirect Methods to the Managers
-    public void printActiveConnections(){
-        this.activeConnectionManager.printActiveConnections();
+    public Set<String> getActiveConnectionNames() {
+        return this.activeConnectionManager.getActiveConnections();
     }
 
-    public void stopActiveConnections(){
+    public void stopActiveConnections() {
         this.activeConnectionManager.stopActiveConnections();
         this.activeConnectionManager.shutdownReceiverPool();
     }
@@ -150,4 +130,9 @@ public class ChatClient {
     public void printAllRoutingTables(){
         routingTableManager.printAllRoutingTables();
     }
+
+    public Set<Map.Entry<String, Socket>> getActiveConnections() {
+        return activeConnectionManager.getEntrySet();
+    }
+
 }
