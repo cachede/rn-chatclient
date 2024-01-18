@@ -1,5 +1,9 @@
 package ahmed.daniel;
 
+/**
+ * Contains all Protocol-specific constants which are used, when creating a Message or receiving a message
+ */
+
 public final class ProtocolConstants {
     private ProtocolConstants(){}
 

@@ -2,6 +2,13 @@ package ahmed.daniel;
 
 import java.util.Scanner;
 
+/**
+ * Is responsible for Interacting with the Client. It processes all User Inputs from STDIN and calls the corresponding
+ * functionality on the ChatClient-Object. Also handles the OUTPUT by printing to STDOUT.
+ * The UI offers the user: connecting to another Client by his ipv4-address and port, sending a message to a connected
+ * client in the network, show all participants in the network and disconnecting from the network. Also it can show
+ * the user a help board, which shows the user of the application how to interact with the program.
+ */
 public class UI {
     
     public final String CONNECT_TO = "1";
@@ -12,10 +19,22 @@ public class UI {
 
     private final ChatClient chatClient;
 
+    /**
+     * Creates instance of the UI. The UI needs a ChatClient on which it calls the corresponding functionality,
+     * which the user desires.
+     * enters
+     * @param chatClient    A ChatClient object on which connecting
+     */
     public UI(ChatClient chatClient) {
         this.chatClient = chatClient;
     }
 
+    /**
+     * During the mainLoop the User is prompted to give user input through STDIN. It processes the Userinput and
+     * calls the corresponding function in order to achieve the users desired. At the beginning of the function the
+     * User is shown a small help-board to explain which Input does what. The user can always print it again with "h".
+     * This method is in a infinity-loop until the user asks explicity to quit the application by pressing "q"
+     */
     public void mainLoop() {
         Scanner scanner = new Scanner(System.in);
         boolean running = true;
@@ -54,9 +73,7 @@ public class UI {
                 }
                 case QUIT_PROGRAM: {
                     System.out.println("Quitting Program ...");
-                    chatClient.stopRouting();
-                    chatClient.stopSocket();
-                    chatClient.stopActiveConnections();
+                    chatClient.disconnect();
                     scanner.close();
                     running = false;
                     break;
@@ -72,6 +89,9 @@ public class UI {
         }
     }
 
+    /**
+     * Prints the usage of the Application
+     */
     public void printMenu() {
         System.out.println("+----------------------------------------+");
         System.out.println("|       Usage of ChatClient-Modell       |");

@@ -1,13 +1,6 @@
 package ahmed.daniel;
-
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import java.util.Scanner;
 
 
@@ -27,14 +20,43 @@ import java.util.Scanner;
  * 
  */
 
-
+/**
+ * Main Class from which the Application is started
+ */
 public class Main {
-    // arg[0] = IP-Adresse
-    // arg[1] = Port
-    // arg[2] = Name
     public static void main(String[] args) {
 
+        // So fucking ugly
+        boolean validInput;
+        Scanner userInputScanner = new Scanner(System.in);
+        do {
+            try {
+                System.out.println("Please enter your IP-Address: ");
+                String userIpAdress = userInputScanner.nextLine();
+                System.out.println("Please enter your Port: ");
+                int userPortNumber = Integer.parseInt(userInputScanner.nextLine());
+                System.out.println("Please enter your 3 letter Username: ");
+                String userName = userInputScanner.nextLine();
+
+                ChatClient client = new ChatClient(InetAddress.getByName(userIpAdress), userPortNumber, userName);
+                validInput = false;
+                UI ui = new UI(client);
+                client.startClient();
+                ui.mainLoop();
+                userInputScanner.close();
+            } catch (IOException e) {
+                System.out.println("IP-Address or Port was not valid, please try again");
+                validInput = true;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Arguments passed were not valid, please try again");
+                validInput = true;
+            }
+
+        } while(validInput);
+
+
         //Maybe ask the user for input until the input is correct
+        /*                      OLD
         try {
             ChatClient client = new ChatClient(InetAddress.getByName(args[0]), Integer.parseInt(args[1]), args[2]);
             UI ui = new UI(client);
@@ -43,6 +65,8 @@ public class Main {
         } catch (IOException ioException) {
             System.err.println("The entered IP-Address or Port are not valid, try again");
         }
+
+        */
     }
 
 }

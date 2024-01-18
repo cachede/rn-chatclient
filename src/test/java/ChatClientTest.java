@@ -36,13 +36,9 @@ public class ChatClientTest {
 
     @AfterEach
     void cleanUp() {
-        chatClient1.stopRouting();
-        chatClient1.stopSocket();
-        chatClient1.stopActiveConnections();
+        chatClient1.disconnect();
 
-        chatClient2.stopRouting();
-        chatClient2.stopSocket();
-        chatClient2.stopActiveConnections();
+        chatClient2.disconnect();
 
         System.setOut(standardOut);
     }

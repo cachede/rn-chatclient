@@ -38,6 +38,7 @@ public class ReceiverTask implements Runnable{
             DataInputStream in = new DataInputStream(socket.getInputStream());
 
             byte[] buffer = new byte[ProtocolConstants.MAX_MESSAGE_LENGTH_IN_BYTES];
+            //TODO: this is shit, because a receiveMessage is never
             while(true) {
 
                 in.readFully(buffer);

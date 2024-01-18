@@ -4,6 +4,10 @@ import ahmed.daniel.ProtocolConstants;
 
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+
+/**
+ *
+ */
 public class ConnectionMessage extends Message {
 
     public ConnectionMessage(String sourceName){
