@@ -6,6 +6,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.util.zip.*;
+import java.nio.ByteBuffer;
 
 /**
  * A message which is being send to Participants in the network contains a Header which is implemented in this abstract
@@ -32,11 +34,16 @@ public abstract class Message {
         byte[] basisHeader = getBasisHeader(destinationName);
 
         // Build message with header and paylaod
-        byte[] message = new byte[payload.length + basisHeader.length];
+        byte[] message = new byte[basisHeader.length + payload.length];
         System.arraycopy(basisHeader, 0, message, 0, basisHeader.length);
         System.arraycopy(payload, 0, message, basisHeader.length, payload.length);
 
-        return message;
+        byte[] messageWithChecksumCRC32 = new byte[message.length + ProtocolConstants.CHECKSUM_CRC32_SIZE];
+        long checksumCRC32 = ProtocolCRC32.getCRC32Checksum(message);
+        byte[] checksumCRC32Bytes =  ProtocolCRC32.getChecksumBytes(checksumCRC32);
+        System.arraycopy(message, 0, messageWithChecksumCRC32, 0, message.length);
+        System.arraycopy(checksumCRC32Bytes, 0, messageWithChecksumCRC32, message.length, ProtocolConstants.CHECKSUM_CRC32_SIZE);
+        return messageWithChecksumCRC32;
     }
 
     /**
@@ -104,5 +111,4 @@ public abstract class Message {
         return basisHeader;
     }
 
-    //TODO: crc32 checksum berechnen
 }

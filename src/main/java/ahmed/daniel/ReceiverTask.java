@@ -3,6 +3,7 @@ package ahmed.daniel;
 import ahmed.daniel.Messages.CommunicationMessage;
 import ahmed.daniel.Messages.ConnectionMessage;
 import ahmed.daniel.Messages.Message;
+import ahmed.daniel.Messages.ProtocolCRC32;
 import ahmed.daniel.routing.RoutingTable;
 import ahmed.daniel.routing.RoutingTableManager;
 
@@ -22,6 +23,22 @@ public class ReceiverTask implements Runnable {
         this.name = name;
         this.activeConnectionManager = activeConnections;
         this.routingTableManager = routingTableManager;
+    }
+
+    private boolean checkSumIsCorrect(byte[] basisheader, byte[] payload, byte[] expectedChecsumCRC32Bytes) {
+        byte[] tmp = new byte[4 + expectedChecsumCRC32Bytes.length];
+        byte[] fillBytes = {0, 0, 0, 0};
+        System.arraycopy(fillBytes, 0, tmp, 0, 4);
+        System.arraycopy(expectedChecsumCRC32Bytes, 0, tmp, 4, expectedChecsumCRC32Bytes.length);
+        long expectedChecksumCRC32 = ProtocolCRC32.bytesToLong(tmp);
+
+        byte[] valuesForCRC32Calculation = new byte[basisheader.length + payload.length];
+        System.arraycopy(basisheader, 0, valuesForCRC32Calculation, 0, basisheader.length);
+
+        System.arraycopy(payload, 0, valuesForCRC32Calculation, basisheader.length, payload.length);
+        long currentChecksumCRC32 = ProtocolCRC32.getCRC32Checksum(valuesForCRC32Calculation);
+
+        return expectedChecksumCRC32 == currentChecksumCRC32;
     }
 
     /**
@@ -66,10 +83,20 @@ public class ReceiverTask implements Runnable {
 
                 switch (type) {
                     case ProtocolConstants.TYPE_VERBINDUNGSPAKET: {
+                        byte[] checksumBuffer = new byte[ProtocolConstants.CHECKSUM_CRC32_SIZE];
+                        in.readFully(checksumBuffer);
+                        byte[] payload = new byte[0];
+                        if (checkSumIsCorrect(basisheaderBuffer,payload, checksumBuffer)){
+                            System.out.println("Es klappt wir können schlafen gehen!");
+                        } else{
+                            System.out.println("Kennst du Sisyphus?");
+                        }
+
+
                         activeConnectionManager.addActiveConnection(basisheaderSourceName, this.socket);
                         routingTableManager.addRoutingTableEntry(basisheaderSourceName, basisheaderSourceName, (byte) 1);
 
-                        // Send our name to source if our name is not set (ZZZ) for them yet
+                        // Send our name to source if our name is not set (zzz) for them yet
                         if (basisheaderDestinationName.equals(ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET)) {
                             Message namePackage = new ConnectionMessage(this.name);
                             namePackage.sendTo(this.socket, basisheaderSourceName);
@@ -80,6 +107,8 @@ public class ReceiverTask implements Runnable {
                         byte amountOfRoutingTables = in.readByte();
                         byte[] routingpackageBuffer = new byte[amountOfRoutingTables*ProtocolConstants.ROUTING_ENTRY_SIZE_IN_BYTE];
                         in.readFully(routingpackageBuffer);
+                        byte[] checkSumBuffer = new byte[ProtocolConstants.CHECKSUM_CRC32_SIZE];
+                        in.readFully(checkSumBuffer);
 
 
                         for (int i = 0; i < amountOfRoutingTables; i++) {

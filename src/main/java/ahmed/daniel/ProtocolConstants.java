@@ -23,7 +23,7 @@ public final class ProtocolConstants {
 
     // Zielnetzname and Quellnetzname
     public static final int DESTINATION_NETWORK_NAME_SIZE_IN_BYTE = 3;
-    public static final String DESTINATION_NETWORK_NAME_NOT_SET = "ZZZ";
+    public static final String DESTINATION_NETWORK_NAME_NOT_SET = "zzz";
     public static final int SOURCE_NETWORK_NAME_SIZE_IN_BYTE = 3;
 
     //Lower is inclusive Higher is exclusive
@@ -67,4 +67,8 @@ public final class ProtocolConstants {
     public static final byte ROUTING_MAX_HOPCOUNT = Byte.MAX_VALUE;
 
     public static final byte ROUTING_DESTINATION_UNREACHABLE = 16;
+
+
+    //CRC
+    public static final byte CHECKSUM_CRC32_SIZE = 4;
 }
