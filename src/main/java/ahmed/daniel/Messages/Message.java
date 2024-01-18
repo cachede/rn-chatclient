@@ -36,8 +36,7 @@ public abstract class Message {
         System.arraycopy(basisHeader, 0, message, 0, basisHeader.length);
         System.arraycopy(payload, 0, message, basisHeader.length, payload.length);
 
-        byte[] filledMessage = fillWithFillbytes(message);
-        return filledMessage;
+        return message;
     }
 
     /**
@@ -64,25 +63,6 @@ public abstract class Message {
 
     }
 
-    /**
-     * TODO: remove this method and introduce a length for the value
-     * @param byteStream
-     * @return
-     */
-    private byte[] fillWithFillbytes(byte[] byteStream) {
-        int len = byteStream.length;
-        if (len == ProtocolConstants.MAX_MESSAGE_LENGTH_IN_BYTES) {
-            return byteStream;
-        }
-        byte[] filledByteStream = new byte[ProtocolConstants.MAX_MESSAGE_LENGTH_IN_BYTES];
-        System.arraycopy(byteStream, 0, filledByteStream, 0, len);
-
-        for (int i = len; i < ProtocolConstants.MAX_MESSAGE_LENGTH_IN_BYTES; i++) {
-            filledByteStream[i] = 0;
-        }
-
-        return filledByteStream;
-    }
 
     private byte[] getBasisHeader(String destinationName) {
         byte[] basisHeader = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE];

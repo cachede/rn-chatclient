@@ -45,6 +45,9 @@ public final class ProtocolConstants {
     // Nachrichtenpaket:
     public static final int MAX_CHARACTERS_PER_MESSAGE = 320;
     public static final int MAX_MESSAGE_LENGTH_IN_BYTES = BASISHEADER_SIZE_IN_BYTE + MAX_CHARACTERS_PER_MESSAGE;
+    public static final int COMMUNICATION_MESSAGE_LENGTH_IN_BYTE = 1;
+    public static final int COMMUNICATION_MESSAGE_LENGTH_INDEX = 0;
+
 
     // Routingeintragspaket
     public static final int ROUTING_DESTINATION_SIZE_IN_BYTE = 3;
