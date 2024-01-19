@@ -61,6 +61,7 @@ public final class ProtocolConstants {
             + ROUTING_HOPCOUNT_SIZE_IN_BYTE;
 
     // Routingpaket:
+    public static final int ROUTING_AMOUNT_OF_PACKETS_INDEX = 0;
     public static final int ROUTING_AMOUNT_OF_PACKETS_SIZE_IN_BYTE = 1;
     public static final int ROUTING_PAKET_SIZE_IN_BYTE = BASISHEADER_SIZE_IN_BYTE + ROUTING_AMOUNT_OF_PACKETS_SIZE_IN_BYTE;
 

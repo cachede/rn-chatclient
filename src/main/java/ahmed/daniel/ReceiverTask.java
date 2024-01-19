@@ -83,15 +83,14 @@ public class ReceiverTask implements Runnable {
 
                 switch (type) {
                     case ProtocolConstants.TYPE_VERBINDUNGSPAKET: {
+                        // compare checksum
                         byte[] checksumBuffer = new byte[ProtocolConstants.CHECKSUM_CRC32_SIZE];
                         in.readFully(checksumBuffer);
                         byte[] payload = new byte[0];
-                        if (checkSumIsCorrect(basisheaderBuffer,payload, checksumBuffer)){
-                            System.out.println("Es klappt wir können schlafen gehen!");
-                        } else{
-                            System.out.println("Kennst du Sisyphus?");
+                        if (!checkSumIsCorrect(basisheaderBuffer, payload, checksumBuffer)) {
+                            System.out.println("V: Angekommene Checksumme ist nicht korrekt -> Paket verwerfen");
+                            break;
                         }
-
 
                         activeConnectionManager.addActiveConnection(basisheaderSourceName, this.socket);
                         routingTableManager.addRoutingTableEntry(basisheaderSourceName, basisheaderSourceName, (byte) 1);
@@ -107,8 +106,16 @@ public class ReceiverTask implements Runnable {
                         byte amountOfRoutingTables = in.readByte();
                         byte[] routingpackageBuffer = new byte[amountOfRoutingTables*ProtocolConstants.ROUTING_ENTRY_SIZE_IN_BYTE];
                         in.readFully(routingpackageBuffer);
+                        // compare checksum
+                        byte[] routingpackagePayloadForChecksumCRC32 = new byte[ProtocolConstants.ROUTING_AMOUNT_OF_PACKETS_SIZE_IN_BYTE + routingpackageBuffer.length];
+                        routingpackagePayloadForChecksumCRC32[ProtocolConstants.ROUTING_AMOUNT_OF_PACKETS_INDEX] = amountOfRoutingTables;
+                        System.arraycopy(routingpackageBuffer, 0, routingpackagePayloadForChecksumCRC32, ProtocolConstants.ROUTING_AMOUNT_OF_PACKETS_INDEX+1 , routingpackageBuffer.length);
                         byte[] checkSumBuffer = new byte[ProtocolConstants.CHECKSUM_CRC32_SIZE];
                         in.readFully(checkSumBuffer);
+                        if(!checkSumIsCorrect(basisheaderBuffer, routingpackagePayloadForChecksumCRC32, checkSumBuffer)){
+                            System.out.println("R: Angekommene Checksumme ist nicht korrekt | ROUTINGPACKAGE");
+                            break;
+                        }
 
 
                         for (int i = 0; i < amountOfRoutingTables; i++) {
@@ -151,6 +158,16 @@ public class ReceiverTask implements Runnable {
                         byte[] messagepackageBuffer = new byte[messagepackageLength];
                         in.readFully(messagepackageBuffer);
                         String messageStr = new String(messagepackageBuffer, "UTF-8");
+                        // compare checksum
+                        byte[] messagepackagePayloadForChecksumCRC32 = new byte[ProtocolConstants.COMMUNICATION_MESSAGE_LENGTH_IN_BYTE + messagepackageBuffer.length];
+                        messagepackagePayloadForChecksumCRC32[ProtocolConstants.COMMUNICATION_MESSAGE_LENGTH_INDEX] = messagepackageLength;
+                        System.arraycopy(messagepackageBuffer, 0, messagepackagePayloadForChecksumCRC32, ProtocolConstants.COMMUNICATION_MESSAGE_LENGTH_INDEX+1, messagepackageBuffer.length);
+                        byte[] checkSumBuffer = new byte[ProtocolConstants.CHECKSUM_CRC32_SIZE];
+                        in.readFully(checkSumBuffer);
+                        if(!checkSumIsCorrect(basisheaderBuffer, messagepackagePayloadForChecksumCRC32, checkSumBuffer)){
+                            System.out.println("R: Angekommene Checksumme ist nicht korrekt");
+                            break;
+                        }
 
                         if (basisheaderDestinationName.equals(this.name)) {
                             System.out.println(basisheaderSourceName + ": " + messageStr);
@@ -170,7 +187,7 @@ public class ReceiverTask implements Runnable {
             }
 
         } catch (IOException e) {
-            //System.out.println("IO-EXCEPTION WHILE RECEIVING");
+            //TODO: IOException richtig behandeln
 
         } catch (NullPointerException n) {
             System.out.println("A Connection should be set before receiving a Message");

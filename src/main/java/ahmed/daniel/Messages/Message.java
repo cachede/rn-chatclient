@@ -6,8 +6,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
-import java.util.zip.*;
-import java.nio.ByteBuffer;
 
 /**
  * A message which is being send to Participants in the network contains a Header which is implemented in this abstract
