@@ -65,7 +65,7 @@ public final class ProtocolConstants {
     public static final int ROUTING_AMOUNT_OF_PACKETS_SIZE_IN_BYTE = 1;
     public static final int ROUTING_PAKET_SIZE_IN_BYTE = BASISHEADER_SIZE_IN_BYTE + ROUTING_AMOUNT_OF_PACKETS_SIZE_IN_BYTE;
 
-    public static final byte ROUTING_MAX_HOPCOUNT = Byte.MAX_VALUE;
+    public static final byte ROUTING_MAX_HOPCOUNT = 16; //Byte.MAX_VALUE;
 
     public static final byte ROUTING_DESTINATION_UNREACHABLE = 16;
 

@@ -112,8 +112,12 @@ public class ChatClient {
      * @param destinationName   -   Name of the Destination which should receive the Message
      */
     public void sendMessage(String payload, String destinationName) {
-        if (!activeConnectionManager.getAllActiveConnectionName().contains(destinationName)) {
+        if (!activeConnectionManager.getAllActiveConnectionNames().contains(destinationName)) {
             System.out.println("You have no active Connection to " + destinationName);
+            return;
+        } else if(activeConnectionManager.getSocketFromName(destinationName) == null || routingTableManager.getMinHopCountForDestination(destinationName) == ProtocolConstants.ROUTING_MAX_HOPCOUNT){
+            activeConnectionManager.removeActiveConnection(destinationName);
+            System.out.println("Connection to " + destinationName + " was removed!");
             return;
         }
 
@@ -124,7 +128,7 @@ public class ChatClient {
             message.sendTo(pickedSocket, destinationName);
 
         } catch (IOException io){
-            activeConnectionManager.removeActiveConnection(destinationName);    //Zu dem man sendet kann schon disconnected sein -> Test
+            activeConnectionManager.CloseActiveConnection(destinationName);    //Zu dem man sendet kann schon disconnected sein -> Test
             routingTableManager.setSourceAsUnreachable(destinationName);
         }
     }
@@ -164,12 +168,9 @@ public class ChatClient {
 
     // Redirect Methods to the Managers
 
-    /**
-     * Gets all DIRECT Connections of the Client
-     * @return  A Set of Names, to which the Client has a direct Connection
-     */
+
     public Set<String> getActiveConnectionNames() {
-        return this.activeConnectionManager.getActiveConnections();
+        return this.activeConnectionManager.getAllActiveConnectionNames();
     }
 
     /**

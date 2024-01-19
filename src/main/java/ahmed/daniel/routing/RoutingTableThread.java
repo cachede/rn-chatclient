@@ -6,10 +6,7 @@ import ahmed.daniel.Messages.RoutingMessage;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Iterator;
-import java.util.TimerTask;
-
-import java.util.List;
+import java.util.*;
 
 public class RoutingTableThread extends TimerTask {
 
@@ -29,7 +26,10 @@ public class RoutingTableThread extends TimerTask {
         List<RoutingTable> routingList = List.copyOf(this.routingTableManager.getRoutingTables());
         //Message routingMessage = new RoutingMessage(this.name, routingList);
 
-        Iterator<String> iterator = this.activeConnectionManager.getAllActiveConnectionName().iterator();
+
+
+        Iterator<String> iterator = activeConnectionManager.getAllActiveConnectionNames().iterator();
+
 
         while(iterator.hasNext()) {
             String connectionName = iterator.next();
@@ -41,11 +41,14 @@ public class RoutingTableThread extends TimerTask {
                 try {
                     routingMessage.sendTo(conSocket, connectionName);
                 } catch (IOException ioException) {
+                    System.out.println(ioException);
                     routingTableManager.setSourceAsUnreachable(connectionName);
-                    iterator.remove();
+                    //iterator.remove();
+                    activeConnectionManager.CloseActiveConnection(connectionName);
                 }
             }
         }
+
     }
 
     private List<RoutingTable> getExtractedRoutingTable(List<RoutingTable> routingTables, String name){

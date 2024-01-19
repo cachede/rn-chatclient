@@ -4,7 +4,6 @@ import ahmed.daniel.Messages.CommunicationMessage;
 import ahmed.daniel.Messages.ConnectionMessage;
 import ahmed.daniel.Messages.Message;
 import ahmed.daniel.Messages.ProtocolCRC32;
-import ahmed.daniel.routing.RoutingTable;
 import ahmed.daniel.routing.RoutingTableManager;
 
 import java.net.*;
@@ -138,17 +137,23 @@ public class ReceiverTask implements Runnable {
                             byte hopCountBytes = routingpackageBuffer[startIndex];
 
                             //TODO Add active trasitive connections
-                            if (!destination.equals(this.name) && !nextHop.equals(this.name)) {
+                            if (!destination.equals(this.name) && !nextHop.equals(this.name)) {     //Wir brauchen keine Infos über uns selbst
                                 // wenn wir active con schon haben -> gucken ob hop count von neuer kleiner ist -> dann ersetzen
                                 byte currentHopCountForDestination = routingTableManager.getMinHopCountForDestination(destination);
 
-                                // If we do not have a Route yet or the new Route is shorter, we add it to acctive Connections
+                                // If we do not have a Route yet or the new Route is shorter, we add it to active Connections
                                 if (hopCountBytes < currentHopCountForDestination) {
                                     Socket socket = activeConnectionManager.getSocketFromName(basisheaderSourceName);
                                     activeConnectionManager.addActiveConnection(destination, socket);
                                 }
-
                                 routingTableManager.addRoutingTableEntry(destination, basisheaderSourceName, (byte) (hopCountBytes + 1));
+
+                                // Check after the Routingtable Update, if we still have a valid route to destination -> if not remove it from active connections
+                                currentHopCountForDestination = routingTableManager.getMinHopCountForDestination(destination);
+
+                                if (hopCountBytes == ProtocolConstants.ROUTING_MAX_HOPCOUNT && currentHopCountForDestination == ProtocolConstants.ROUTING_MAX_HOPCOUNT){
+                                    activeConnectionManager.removeActiveConnection(destination);
+                                }
                             }
                         }
                     }
@@ -171,7 +176,7 @@ public class ReceiverTask implements Runnable {
 
                         if (basisheaderDestinationName.equals(this.name)) {
                             System.out.println(basisheaderSourceName + ": " + messageStr);
-                        } else if (activeConnectionManager.getAllActiveConnectionName().contains(basisheaderDestinationName)) {
+                        } else if (activeConnectionManager.getAllActiveConnectionNames().contains(basisheaderDestinationName)) {
                             System.out.println("Hier sollten wir weiterleiten an " + basisheaderDestinationName);
                             Message passMessage = new CommunicationMessage(basisheaderSourceName, messageStr);
                             Socket passSocket = activeConnectionManager.getSocketFromName(basisheaderDestinationName);

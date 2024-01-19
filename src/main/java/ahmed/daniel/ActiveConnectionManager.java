@@ -1,15 +1,11 @@
 package ahmed.daniel;
 
-import ahmed.daniel.routing.RoutingTable;
-
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import java.io.IOException;
 import java.net.*;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -38,6 +34,10 @@ public class ActiveConnectionManager{
     public ActiveConnectionManager() {
         this.activeConnections = new HashMap<>();
         this.receiverPool= Executors.newFixedThreadPool(MAX_RECEIVER_THREADS);
+    }
+
+    public synchronized Map<String, Socket> getActiveConnections(){
+        return this.activeConnections;
     }
 
     /**
@@ -76,22 +76,27 @@ public class ActiveConnectionManager{
      * Gets all active connection to which the user has in the network
      * @return  A set of names, which are available in the network
      */
-    public synchronized Set<String> getAllActiveConnectionName() {
+    public synchronized Set<String> getAllActiveConnectionNames() {
         return activeConnections.keySet();
     }
 
 
     /**
      * Removes an active Connection by first closing the socket for the name and removing this entry in the manager
-     * @param toBeRemovedName   name which is to be removed
+     * @param toBeClosedName   name which is to be removed
      */
-    public synchronized void removeActiveConnection(String toBeRemovedName){
+    public synchronized void CloseActiveConnection(String toBeClosedName){
         try {
-            this.activeConnections.get(toBeRemovedName).close();
-            this.activeConnections.remove(toBeRemovedName);
+            this.activeConnections.get(toBeClosedName).close();
+            this.activeConnections.remove(toBeClosedName);
         } catch (IOException e) {
             System.out.println("RemoveActionConnection konnte Socket nicht schließen");
         }
+    }
+
+    // TODO
+    public synchronized void removeActiveConnection(String toBeRemovedName){
+        this.activeConnections.remove(toBeRemovedName);
     }
 
     /**
@@ -114,14 +119,6 @@ public class ActiveConnectionManager{
                 System.out.println("FEHLER BEIM CLOSEN VON SOCKETS");
             }
         }
-    }
-
-    /**
-     * //TODO: 453rd method to return all names in the network
-     * @return
-     */
-    public Set<String> getActiveConnections() {
-        return this.activeConnections.keySet();
     }
 
     /**
