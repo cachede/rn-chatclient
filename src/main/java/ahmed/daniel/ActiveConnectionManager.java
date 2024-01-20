@@ -1,5 +1,6 @@
 package ahmed.daniel;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -32,12 +33,14 @@ public class ActiveConnectionManager{
      * Also creates a TaskPool of 5 Threads, which handle the receiving of Messages.
      */
     public ActiveConnectionManager() {
-        this.activeConnections = new HashMap<>();
+        this.activeConnections = Collections.synchronizedMap(new HashMap<>());
         this.receiverPool= Executors.newFixedThreadPool(MAX_RECEIVER_THREADS);
     }
 
-    public synchronized Map<String, Socket> getActiveConnections(){
-        return this.activeConnections;
+    public Map<String, Socket> getActiveConnections(){
+        synchronized (this.activeConnections) {
+            return this.activeConnections;
+        }
     }
 
     /**
@@ -57,8 +60,10 @@ public class ActiveConnectionManager{
      * @param socket    The associated Socket for the name. This Socket does NOT indicate a direct connection to the
      *                  name. This socket could lead to a complete different participant in the network (see protocol).
      */
-    public synchronized void addActiveConnection(String name, Socket socket){
-        this.activeConnections.put(name, socket);
+    public void addActiveConnection(String name, Socket socket){
+        synchronized (this.activeConnections){
+            this.activeConnections.put(name, socket);
+        }
     }
 
     /**
@@ -67,8 +72,10 @@ public class ActiveConnectionManager{
      * @param name  Name of the participant, which you want to send a message to
      * @return  a Socket, to which you should send the message, in order to get the paket to the desired name
      */
-    public synchronized Socket getSocketFromName(String name){
-        return this.activeConnections.get(name);
+    public Socket getSocketFromName(String name){
+        synchronized (this.activeConnections){
+            return this.activeConnections.get(name);
+        }
     }
 
 
@@ -76,8 +83,10 @@ public class ActiveConnectionManager{
      * Gets all active connection to which the user has in the network
      * @return  A set of names, which are available in the network
      */
-    public synchronized Set<String> getAllActiveConnectionNames() {
-        return activeConnections.keySet();
+    public Set<String> getAllActiveConnectionNames() {
+        synchronized (this.activeConnections){
+            return activeConnections.keySet();
+        }
     }
 
 
@@ -85,26 +94,33 @@ public class ActiveConnectionManager{
      * Removes an active Connection by first closing the socket for the name and removing this entry in the manager
      * @param toBeClosedName   name which is to be removed
      */
-    public synchronized void CloseActiveConnection(String toBeClosedName){
-        try {
-            this.activeConnections.get(toBeClosedName).close();
-            this.activeConnections.remove(toBeClosedName);
-        } catch (IOException e) {
-            System.out.println("RemoveActionConnection konnte Socket nicht schließen");
+    public void CloseActiveConnection(String toBeClosedName){
+        synchronized (this.activeConnections){
+            try {
+                this.activeConnections.get(toBeClosedName).close();
+                //TODO I think we just close here
+                //this.activeConnections.remove(toBeClosedName);
+            } catch (IOException e) {
+                System.out.println("RemoveActionConnection konnte Socket nicht schließen");
+            }
         }
     }
 
     // TODO
-    public synchronized void removeActiveConnection(String toBeRemovedName){
-        this.activeConnections.remove(toBeRemovedName);
+    public void removeActiveConnection(String toBeRemovedName){
+        synchronized (this.activeConnections){
+            this.activeConnections.remove(toBeRemovedName);
+        }
     }
 
     /**
      * Gets the entire EntrySet for all active Connections.
      * @return  A set of entries, which have the name as a key and the corresponding socket as a value
      */
-    public synchronized Set<Entry<String, Socket>> getEntrySet() {
-        return activeConnections.entrySet();
+    public Set<Entry<String, Socket>> getEntrySet() {
+        synchronized (this.activeConnections){
+            return activeConnections.entrySet();
+        }
     }
 
     /**

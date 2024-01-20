@@ -27,31 +27,6 @@ public abstract class Message {
         this.sourceName = sourceName;
     }
 
-    private byte[] buildMessage(String destinationName) throws UnsupportedEncodingException {
-        byte[] payload = getPayloadInBytes();
-        byte[] basisHeader = getBasisHeader(destinationName);
-
-        // Build message with header and paylaod
-        byte[] message = new byte[basisHeader.length + payload.length];
-        System.arraycopy(basisHeader, 0, message, 0, basisHeader.length);
-        System.arraycopy(payload, 0, message, basisHeader.length, payload.length);
-
-        byte[] messageWithChecksumCRC32 = new byte[message.length + ProtocolConstants.CHECKSUM_CRC32_SIZE];
-        long checksumCRC32 = ProtocolCRC32.getCRC32Checksum(message);
-        byte[] checksumCRC32Bytes =  ProtocolCRC32.getChecksumBytes(checksumCRC32);
-        System.arraycopy(message, 0, messageWithChecksumCRC32, 0, message.length);
-        System.arraycopy(checksumCRC32Bytes, 0, messageWithChecksumCRC32, message.length, ProtocolConstants.CHECKSUM_CRC32_SIZE);
-        return messageWithChecksumCRC32;
-    }
-
-    /**
-     * The value in a Message differs, in how it is encoded. Every class that extends the Message class should provide
-     * a implementation of this function, for whatever the message should contain as a value.
-     * @return  a byte-array which contains the value encoded in bytes
-     * @throws UnsupportedEncodingException
-     */
-    protected abstract byte[] getPayloadInBytes() throws UnsupportedEncodingException;
-
     /**
      * This method is called to send a Message to a destination name. First it build the protocolheader and fills it
      * with the destination name and source name. After the header is build the method sends the byte-stream to the
@@ -68,6 +43,30 @@ public abstract class Message {
 
     }
 
+    /**
+     * The value in a Message differs, in how it is encoded. Every class that extends the Message class should provide
+     * a implementation of this function, for whatever the message should contain as a value.
+     * @return  a byte-array which contains the value encoded in bytes
+     * @throws UnsupportedEncodingException
+     */
+    protected abstract byte[] getPayloadInBytes() throws UnsupportedEncodingException;
+
+    private byte[] buildMessage(String destinationName) throws UnsupportedEncodingException {
+        byte[] payload = getPayloadInBytes();
+        byte[] basisHeader = getBasisHeader(destinationName);
+
+        // Build message with header and paylaod
+        byte[] message = new byte[basisHeader.length + payload.length];
+        System.arraycopy(basisHeader, 0, message, 0, basisHeader.length);
+        System.arraycopy(payload, 0, message, basisHeader.length, payload.length);
+
+        byte[] messageWithChecksumCRC32 = new byte[message.length + ProtocolConstants.CHECKSUM_CRC32_SIZE];
+        long checksumCRC32 = ProtocolCRC32.getCRC32Checksum(message);
+        byte[] checksumCRC32Bytes =  ProtocolCRC32.getChecksumBytes(checksumCRC32);
+        System.arraycopy(message, 0, messageWithChecksumCRC32, 0, message.length);
+        System.arraycopy(checksumCRC32Bytes, 0, messageWithChecksumCRC32, message.length, ProtocolConstants.CHECKSUM_CRC32_SIZE);
+        return messageWithChecksumCRC32;
+    }
 
     private byte[] getBasisHeader(String destinationName) {
         byte[] basisHeader = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE];

@@ -137,7 +137,7 @@ public class ReceiverTask implements Runnable {
                             byte hopCountBytes = routingpackageBuffer[startIndex];
 
                             //TODO Add active trasitive connections
-                            if (!destination.equals(this.name) && !nextHop.equals(this.name)) {     //Wir brauchen keine Infos über uns selbst
+                            if (!destination.equals(this.name)){ // TODO vllt muss das weg&& !nextHop.equals(this.name)) {     //Wir brauchen keine Infos über uns selbst
                                 // wenn wir active con schon haben -> gucken ob hop count von neuer kleiner ist -> dann ersetzen
                                 byte currentHopCountForDestination = routingTableManager.getMinHopCountForDestination(destination);
 
@@ -145,6 +145,9 @@ public class ReceiverTask implements Runnable {
                                 if (hopCountBytes < currentHopCountForDestination) {
                                     Socket socket = activeConnectionManager.getSocketFromName(basisheaderSourceName);
                                     activeConnectionManager.addActiveConnection(destination, socket);
+                                }
+                                if(hopCountBytes == 1 && destination.equals("AAA")){
+                                    System.out.println("Brieftasche ");
                                 }
                                 routingTableManager.addRoutingTableEntry(destination, basisheaderSourceName, (byte) (hopCountBytes + 1));
 
