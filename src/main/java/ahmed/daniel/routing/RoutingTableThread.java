@@ -29,12 +29,21 @@ public class RoutingTableThread extends TimerTask {
 
 
         synchronized (activeConnectionManager.getActiveConnections()){
-            Iterator<String> iterator = activeConnectionManager.getAllActiveConnectionNames().iterator();
+            //Iterator<String> iterator = activeConnectionManager.getAllActiveConnectionNames().iterator();
+            Iterator<Map.Entry<String, Socket>> iterator = activeConnectionManager.getActiveConnectionEntrySet().iterator();
 
             while(iterator.hasNext()) {
-                String connectionName = iterator.next();
+                String connectionName = iterator.next().getKey();
                 Message routingMessage = new RoutingMessage(this.name, getExtractedRoutingTable(routingList, connectionName));
 
+                // Check if active Connection is still active
+                int minHopCountToConnection = routingTableManager.getMinHopCountForDestination(connectionName);
+                if (minHopCountToConnection >= ProtocolConstants.ROUTING_MAX_HOPCOUNT){
+                    iterator.remove();
+                    continue;
+                }
+
+                // Send Routingtables to direct Neighbors
                 if(routingTableManager.getMinHopCountForDestination(connectionName) == 1) {
                     Socket conSocket = activeConnectionManager.getSocketFromName(connectionName);
 
@@ -43,7 +52,10 @@ public class RoutingTableThread extends TimerTask {
                     } catch (IOException ioException) {
                         System.out.println("No connection to " + connectionName + "... setting as unreachable");
                         routingTableManager.setSourceAsUnreachable(connectionName);
-                        //iterator.remove();
+
+                        // TODO Only remove if it was only route to destination -> otherwise -> update the socket
+                        // TODO Remove trasitive -> for example: if a is dead and the only way to b was via a -> than b also dies
+                        // IDEA: iterate through destinations and remove all dest in active connections that have minHopCount == 16
                         activeConnectionManager.CloseActiveConnection(connectionName);
                         iterator.remove();
                     }

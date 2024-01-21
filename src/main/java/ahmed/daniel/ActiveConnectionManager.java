@@ -43,6 +43,12 @@ public class ActiveConnectionManager{
         }
     }
 
+    public Set<Map.Entry<String, Socket>> getActiveConnectionEntrySet(){
+        synchronized (this.activeConnections){
+            return this.activeConnections.entrySet();
+        }
+    }
+
     /**
      * Adds a ReceivingTask, which is responsible to receive any type of messages by his direct Participants.
      * This function will be called, when a new Connection to a Participant has been established.
