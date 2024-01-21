@@ -60,7 +60,7 @@ public class RoutingTableManager{
     public void setSourceAsUnreachable(String source) {
         synchronized (this.routingtables){
             for(RoutingTable routingTable : this.routingtables){
-                if (routingTable.getDestination().equals(source)){
+                if (routingTable.getNextHop().equals(source)){
                     routingTable.setAsUnreachable();
                 }
             }
