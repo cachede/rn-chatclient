@@ -23,7 +23,6 @@ public class ReceiverTask implements Runnable {
 
     // Basisheader
     private byte basisheaderType;
-    private byte basisheaderTtl;
     private byte basisheaderNewTtl;
     private String basisheaderDestinationName;
     private String basisheaderSourceName;
@@ -49,7 +48,7 @@ public class ReceiverTask implements Runnable {
         try {
             DataInputStream in = new DataInputStream(this.socket.getInputStream());
             byte[] basisheaderBuffer = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE];
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 // Read the Basisheader
                 in.readFully(basisheaderBuffer);
                 extractBasisheader(basisheaderBuffer);
@@ -59,7 +58,7 @@ public class ReceiverTask implements Runnable {
                         byte[] checksumBuffer = new byte[ProtocolConstants.CHECKSUM_CRC32_SIZE];
                         in.readFully(checksumBuffer);
                         byte[] payload = new byte[0];
-                        if (!ProtocolCRC32.checkSumIsCorrect(basisheaderBuffer, payload, checksumBuffer)) {
+                        if (ProtocolCRC32.checkSumIsInvalid(basisheaderBuffer, payload, checksumBuffer)) {
                             System.out.println("V: Angekommene Checksumme ist nicht korrekt -> Paket verwerfen");
                             break;
                         }
@@ -80,7 +79,7 @@ public class ReceiverTask implements Runnable {
                         System.arraycopy(routingpackageBuffer, 0, routingpackagePayloadForChecksumCRC32, ProtocolConstants.ROUTING_AMOUNT_OF_PACKETS_INDEX + 1, routingpackageBuffer.length);
                         byte[] checkSumBuffer = new byte[ProtocolConstants.CHECKSUM_CRC32_SIZE];
                         in.readFully(checkSumBuffer);
-                        if (!ProtocolCRC32.checkSumIsCorrect(basisheaderBuffer, routingpackagePayloadForChecksumCRC32, checkSumBuffer)) {
+                        if (ProtocolCRC32.checkSumIsInvalid(basisheaderBuffer, routingpackagePayloadForChecksumCRC32, checkSumBuffer)) {
                             System.out.println("Angekommene Checksumme ist nicht korrekt | ROUTINGPACKAGE");
                             break;
                         }
@@ -99,7 +98,7 @@ public class ReceiverTask implements Runnable {
                         System.arraycopy(messagepackageBuffer, 0, messagepackagePayloadForChecksumCRC32, ProtocolConstants.COMMUNICATION_MESSAGE_LENGTH_INDEX + 1, messagepackageBuffer.length);
                         byte[] checkSumBuffer = new byte[ProtocolConstants.CHECKSUM_CRC32_SIZE];
                         in.readFully(checkSumBuffer);
-                        if (!ProtocolCRC32.checkSumIsCorrect(basisheaderBuffer, messagepackagePayloadForChecksumCRC32, checkSumBuffer)) {
+                        if (ProtocolCRC32.checkSumIsInvalid(basisheaderBuffer, messagepackagePayloadForChecksumCRC32, checkSumBuffer)) {
                             System.out.println("R: Angekommene Checksumme ist nicht korrekt");
                             break;
                         }
@@ -127,8 +126,8 @@ public class ReceiverTask implements Runnable {
 
     private void extractBasisheader(byte[] basisheaderBuffer) {
         this.basisheaderType = basisheaderBuffer[ProtocolConstants.TYPE_INDEX];
-        this.basisheaderTtl = basisheaderBuffer[ProtocolConstants.TTL_INDEX];
-        this.basisheaderNewTtl = (byte) (this.basisheaderTtl - 1);
+        byte basisheaderTtl = basisheaderBuffer[ProtocolConstants.TTL_INDEX];
+        this.basisheaderNewTtl = (byte) (basisheaderTtl - 1);
 
         byte[] destinationNameAsBytes = new byte[ProtocolConstants.DESTINATION_NETWORK_NAME_SIZE_IN_BYTE];
         for (int basisheaderIndex = ProtocolConstants.DESTINATION_NETWORK_NAME_LOWER, destinationNameIndex = 0;
@@ -209,7 +208,7 @@ public class ReceiverTask implements Runnable {
 
     private void handleMessagepaket(String messageStr) throws IOException {
         if (this.basisheaderDestinationName.equals(this.name)) {
-            System.out.println(this.basisheaderSourceName + ": " + messageStr);
+            System.out.println("\n" + this.basisheaderSourceName + ": " + messageStr);
             //redirect message
         } else if (this.basisheaderNewTtl > 0 && this.activeConnectionManager.getAllActiveConnectionNames().contains(this.basisheaderDestinationName)) {
             System.out.println("Hier sollten wir weiterleiten an " + this.basisheaderDestinationName);
@@ -218,8 +217,5 @@ public class ReceiverTask implements Runnable {
             passMessage.sendTo(passSocket, this.basisheaderDestinationName);
         }
     }
-
-
-
 }
 

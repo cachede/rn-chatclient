@@ -5,8 +5,8 @@ import java.util.Objects;
 public class RoutingTableEntry {
     
 
-    private String destination;
-    private String nextHop;
+    private final String destination;
+    private final String nextHop;
     private byte hopCount;
 
 
@@ -29,6 +29,7 @@ public class RoutingTableEntry {
     public byte getHopCount() {
         return this.hopCount;
     }
+
     public void setHopCount(byte newHopCount){
         this.hopCount = newHopCount;
     }
@@ -38,7 +39,7 @@ public class RoutingTableEntry {
     }
 
     public void printRoutingTable() {
-        System.out.println(this.toString());
+        System.out.println(this);
     }
 
     @Override

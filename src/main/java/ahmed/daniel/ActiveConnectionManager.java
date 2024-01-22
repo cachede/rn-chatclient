@@ -15,7 +15,6 @@ import java.util.concurrent.Executors;
  * in the network. In order to get the right Socket, to which the ChatClient sends the message, it asks the
  * ActiveConnectionManager to get a Socket, to which he sends a message. The picked Socket could be the desired
  * Participant, or a representative that could send the message further through the network. (See protocol)
- *
  * Also this class holds a TaskPool for every active Connection, because every active Connection could send a message
  * to the ChatClient. Therefore the ChatClient needs a Thread, which receives the Messages from those active Connections
  *
@@ -52,8 +51,6 @@ public class ActiveConnectionManager{
     /**
      * Adds a ReceivingTask, which is responsible to receive any type of messages by his direct Participants.
      * This function will be called, when a new Connection to a Participant has been established.
-     *
-     * TODO: I think the parameter should not be Runnable, because this function should only allow ReceiverTasks, but in reality it allows any Tasks
      * @param recThread     A ReceivingTask to perform the message receiving
      */
     public synchronized void addReceivingTask(Runnable recThread){
@@ -104,15 +101,12 @@ public class ActiveConnectionManager{
         synchronized (this.activeConnections){
             try {
                 this.activeConnections.get(toBeClosedName).close();
-                //TODO I think we just close here
-                //this.activeConnections.remove(toBeClosedName);
             } catch (IOException e) {
                 System.out.println("RemoveActionConnection konnte Socket nicht schließen");
             }
         }
     }
 
-    // TODO
     public void removeActiveConnection(String toBeRemovedName){
         synchronized (this.activeConnections){
             this.activeConnections.remove(toBeRemovedName);

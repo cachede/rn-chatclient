@@ -2,7 +2,6 @@ package ahmed.daniel.Messages;
 
 import ahmed.daniel.ProtocolConstants;
 import ahmed.daniel.routing.RoutingTableEntry;
-
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 

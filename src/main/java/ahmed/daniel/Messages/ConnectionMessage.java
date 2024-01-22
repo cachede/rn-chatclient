@@ -1,10 +1,6 @@
 package ahmed.daniel.Messages;
-import ahmed.daniel.Messages.Message;
+
 import ahmed.daniel.ProtocolConstants;
-
-import java.io.UnsupportedEncodingException;
-import java.net.Socket;
-
 /**
  *
  */

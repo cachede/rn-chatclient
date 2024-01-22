@@ -38,13 +38,9 @@ public final class ProtocolConstants {
     public static final int BASISHEADER_SIZE_IN_BYTE =
             TYPE_SIZE_IN_BYTE + TTL_SIZE_IN_BYTE + DESTINATION_NETWORK_NAME_SIZE_IN_BYTE + SOURCE_NETWORK_NAME_SIZE_IN_BYTE;
 
-    // Verbindungspaket:
-    // Name
-    public static final byte NAME_SIZE_IN_BYTE = 3;
 
     // Nachrichtenpaket:
     public static final int MAX_CHARACTERS_PER_MESSAGE = 320;
-    public static final int MAX_MESSAGE_LENGTH_IN_BYTES = BASISHEADER_SIZE_IN_BYTE + MAX_CHARACTERS_PER_MESSAGE;
     public static final int COMMUNICATION_MESSAGE_LENGTH_IN_BYTE = 1;
     public static final int COMMUNICATION_MESSAGE_LENGTH_INDEX = 0;
 
@@ -68,12 +64,9 @@ public final class ProtocolConstants {
 
     public static final int ROUTING_INDEX_OF_HOP_COUNT = ROUTING_INDEX_OF_NEXTHOP + ROUTING_NEXT_HOP_SIZE_IN_BYTE;
 
-    public static final int ROUTING_PAKET_SIZE_IN_BYTE = BASISHEADER_SIZE_IN_BYTE + ROUTING_AMOUNT_OF_PACKETS_SIZE_IN_BYTE;
-
-    public static final byte ROUTING_MAX_HOPCOUNT = 16; //Byte.MAX_VALUE;
+    public static final byte ROUTING_MAX_HOPCOUNT = 16;
 
     public static final byte ROUTING_DESTINATION_UNREACHABLE = 16;
-
 
     //CRC
     public static final byte CHECKSUM_CRC32_SIZE = 4;

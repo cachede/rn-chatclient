@@ -158,8 +158,6 @@ public class MessageTest {
         }
     }
 
-    //TODO: test CoommunicationMessage
-
     @Test
     public void testPayloadLengthIndexCommunicationMessage() {
         try {

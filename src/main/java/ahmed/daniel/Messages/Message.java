@@ -1,10 +1,8 @@
 package ahmed.daniel.Messages;
 
 import ahmed.daniel.ProtocolConstants;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
@@ -79,9 +77,7 @@ public abstract class Message {
         basisHeader[ProtocolConstants.TTL_INDEX] = this.ttl;
 
         // Destination-Name
-        byte[] destNameBytes = new byte[ProtocolConstants.DESTINATION_NETWORK_NAME_SIZE_IN_BYTE];
-
-        destNameBytes = destinationName.getBytes(StandardCharsets.UTF_8);
+        byte[] destNameBytes =destinationName.getBytes(StandardCharsets.UTF_8);
 
 
         for (int destIndex = 0, byteStreamIndex = ProtocolConstants.TYPE_SIZE_IN_BYTE + ProtocolConstants.TTL_SIZE_IN_BYTE;
@@ -93,9 +89,7 @@ public abstract class Message {
         }
 
         // Source-Name
-        byte[] sourceNameBytes = new byte[ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE];
-
-        sourceNameBytes = this.sourceName.getBytes(StandardCharsets.UTF_8);
+        byte[] sourceNameBytes = this.sourceName.getBytes(StandardCharsets.UTF_8);
 
         for (int srcIndex = 0, byteStreamIndex = ProtocolConstants.TYPE_SIZE_IN_BYTE + ProtocolConstants.TTL_SIZE_IN_BYTE
                 + ProtocolConstants.DESTINATION_NETWORK_NAME_SIZE_IN_BYTE; srcIndex < ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE;

@@ -36,7 +36,6 @@ public class RoutingTableManager{
         }
     }
 
-
     private void updateHopCountOfRoutingTable(String destination, String nextHop, byte newHopCount){
         synchronized (this.routingtable) {
             for(RoutingTableEntry routingTable : this.routingtable){
@@ -47,12 +46,6 @@ public class RoutingTableManager{
         }
     }
 
-    public int getSize() {
-        synchronized (this.routingtable) {
-            return routingtable.size();
-        }
-    }
-
     public void setSourceAsUnreachable(String source) {
         synchronized (this.routingtable){
             for(RoutingTableEntry routingTable : this.routingtable){
@@ -60,28 +53,6 @@ public class RoutingTableManager{
                     routingTable.setAsUnreachable();
                 }
             }
-        }
-    }
-
-    /**
-     *
-     * @param destination Destination that we are searching the shortest path for
-     * @return if we do not find a root -> null
-     *         else -> the nextHop for the shortest path
-     */
-    public String getRouteWithMinHopCountForDestination(String destination){
-        synchronized (this.routingtable) {
-            String minHopCountNextHop = null;
-            byte minHopCount = ProtocolConstants.ROUTING_MAX_HOPCOUNT;
-
-            for (RoutingTableEntry routingTable : this.routingtable){
-                if (destination.equals(routingTable.getDestination()) && routingTable.getHopCount() < minHopCount){
-                    minHopCountNextHop = routingTable.getNextHop();
-                    minHopCount = routingTable.getHopCount();
-                }
-            }
-
-            return minHopCountNextHop;
         }
     }
 

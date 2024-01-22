@@ -1,7 +1,6 @@
 package ahmed.daniel;
 
 import ahmed.daniel.routing.RoutingTableManager;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -38,14 +37,13 @@ public class AcceptThread implements Runnable {
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
-            Socket newSocket = null;
+            Socket newSocket;
             try {
                 newSocket = this.serverSocket.accept();
             } catch (IOException e) {
                 break;
             }
 
-            //System.out.println("NEW CONNECTION: " + newSocket.getPort());
             Runnable receiverTask = new ReceiverTask(newSocket, this.name, this.activeConnectionManager, this.routingTableManager);
             activeConnectionManager.addReceivingTask(receiverTask);
         }

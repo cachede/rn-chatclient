@@ -1,10 +1,6 @@
 package ahmed.daniel.Messages;
 
-import ahmed.daniel.Messages.Message;
 import ahmed.daniel.ProtocolConstants;
-
-import java.io.UnsupportedEncodingException;
-import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -12,7 +8,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class CommunicationMessage extends Message {
 
-    private String payload;
+    private final String payload;
 
     /**
      *
@@ -24,7 +20,6 @@ public class CommunicationMessage extends Message {
         super(ProtocolConstants.TYPE_MESSAGEPAKET, ttl, sourceName);
         this.payload = payload;
     }
-
 
     @Override
     protected byte[] getPayloadInBytes() {

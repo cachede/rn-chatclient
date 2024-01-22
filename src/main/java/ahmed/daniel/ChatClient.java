@@ -3,9 +3,9 @@ package ahmed.daniel;
 import ahmed.daniel.Messages.CommunicationMessage;
 import ahmed.daniel.Messages.ConnectionMessage;
 import ahmed.daniel.Messages.Message;
+import ahmed.daniel.Messages.ProtocolCRC32;
 import ahmed.daniel.routing.RoutingTableManager;
 import ahmed.daniel.routing.RoutingTableThread;
-
 import java.net.*;
 import java.io.*;
 import java.util.Map;
@@ -21,9 +21,6 @@ import java.util.Timer;
 public class ChatClient {
     private final ServerSocket serverSocket;
     private final String name;
-    private InetAddress ipAddress;
-    private final int port;
-
     private final ActiveConnectionManager activeConnectionManager;
     private final RoutingTableManager routingTableManager;
 
@@ -44,12 +41,10 @@ public class ChatClient {
      * @throws IOException  Throws IOException if the Socket for the given IPv4-Address and Port could not be instatiated
      */
     public ChatClient(InetAddress ipAddress, int port, String name) throws IOException {
-        this.ipAddress = ipAddress;
-        this.port = port;
         this.name = name;
         this.activeConnectionManager = new ActiveConnectionManager();
         this.routingTableManager = new RoutingTableManager();
-        this.serverSocket = new ServerSocket(this.port, 5, this.ipAddress);
+        this.serverSocket = new ServerSocket(port, 5, ipAddress);
 
         this.accThread = new Thread(new AcceptThread(this.serverSocket, this.name, this.activeConnectionManager, this.routingTableManager));
         this.routingThread = new RoutingTableThread(routingTableManager, activeConnectionManager, name);
@@ -112,6 +107,10 @@ public class ChatClient {
      * @param destinationName   -   Name of the Destination which should receive the Message
      */
     public void sendMessage(String payload, String destinationName) {
+        if(payload.length() >= ProtocolConstants.MAX_CHARACTERS_PER_MESSAGE){
+            System.out.println("Message was to long!");
+            return;
+        }
         if (!activeConnectionManager.getAllActiveConnectionNames().contains(destinationName)) {
             System.out.println("You have no active Connection to " + destinationName);
             return;
@@ -151,9 +150,7 @@ public class ChatClient {
     private void stopSocket() {
         try {
             serverSocket.close();
-
         } catch (IOException e) {
-            //Loggerfile
             System.out.println("Stopping Socket");
         }
     }
@@ -166,8 +163,6 @@ public class ChatClient {
     }
 
     // Redirect Methods to the Managers
-
-
     public Set<String> getActiveConnectionNames() {
         return this.activeConnectionManager.getAllActiveConnectionNames();
     }
@@ -194,5 +189,4 @@ public class ChatClient {
     public Set<Map.Entry<String, Socket>> getActiveConnections() {
         return activeConnectionManager.getEntrySet();
     }
-
 }

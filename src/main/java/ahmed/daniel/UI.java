@@ -59,8 +59,7 @@ public class UI {
                     String destinationName = scanner.nextLine();
 
                     chatClient.sendMessage(message, destinationName);
-                    System.out.println("Sending Message to IPv4 Address ...");
-                    System.out.println("Message to be send: " + message);
+                    System.out.println("YOU: " + message);
                     break;
                 }
                 case SHOW_PARTICIPANTS: {
@@ -99,8 +98,7 @@ public class UI {
         System.out.println("|    2 - Send Message to (IP-v4) Address |");
         System.out.println("|    3 - Show Participants               |");
         System.out.println("|    q - quit the Program                |");
-        System.out.println("|    h - print the Usage                 |");
+        System.out.println("|    h - print RoutingTable              |");
         System.out.println("+----------------------------------------+");
     }
-
 }
