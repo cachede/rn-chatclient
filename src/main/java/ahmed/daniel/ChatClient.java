@@ -26,8 +26,6 @@ public class ChatClient {
     private final Thread accThread;
     private final RoutingTableThread routingThread;
     private final Timer timer;
-    private final static int delay = 5000;
-    private final static int period = 5000;
 
 
     /**
@@ -57,7 +55,7 @@ public class ChatClient {
      */
     public void startClient() {
         this.accThread.start();
-        this.timer.scheduleAtFixedRate(routingThread, delay, period);
+        this.timer.scheduleAtFixedRate(routingThread, ProtocolConstants.TIME_BETWEEN_ROUTING_UPDATES_IN_MS, ProtocolConstants.TIME_BETWEEN_ROUTING_UPDATES_IN_MS);
     }
 
     /**
@@ -121,7 +119,7 @@ public class ChatClient {
         try {
             message.sendTo(pickedSocket, destinationName);
         } catch (IOException io){
-            activeConnectionManager.CloseActiveConnection(destinationName);    //Zu dem man sendet kann schon disconnected sein -> Test
+            activeConnectionManager.closeActiveConnection(destinationName);    //Zu dem man sendet kann schon disconnected sein -> Test
             routingTableManager.setSourceAsUnreachable(destinationName);
         }
     }
@@ -169,8 +167,8 @@ public class ChatClient {
      * Stops all active Connections to all current Active Connections of the Client
      */
     private void stopActiveConnections() {
-        this.activeConnectionManager.stopActiveConnections();
         this.activeConnectionManager.shutdownReceiverPool();
+        this.activeConnectionManager.stopActiveConnections();
     }
 
     /**

@@ -100,8 +100,11 @@ public class ActiveConnectionManager{
      * Removes an active Connection by first closing the socket for the name and removing this entry in the manager
      * @param toBeClosedName   name which is to be removed
      */
-    public void CloseActiveConnection(String toBeClosedName){
+    public void closeActiveConnection(String toBeClosedName){
         synchronized (this.activeConnections){
+            if(!this.activeConnections.containsKey(toBeClosedName)){
+                return;
+            }
             try {
                 this.activeConnections.get(toBeClosedName).close();
             } catch (IOException e) {
@@ -117,6 +120,9 @@ public class ActiveConnectionManager{
      */
     public void removeActiveConnection(String toBeRemovedName){
         synchronized (this.activeConnections){
+            if (!this.activeConnections.containsKey(toBeRemovedName)){
+                return;
+            }
             this.activeConnections.remove(toBeRemovedName);
         }
     }

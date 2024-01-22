@@ -62,9 +62,9 @@ public class RoutingTableThread extends TimerTask {
                         routingMessage.sendTo(conSocket, connectionName);
                     } catch (IOException ioException) {
                         System.out.println("No connection to " + connectionName + "... setting as unreachable");
-                        routingTableManager.setSourceAsUnreachable(connectionName);
 
-                        activeConnectionManager.CloseActiveConnection(connectionName);
+                        routingTableManager.setSourceAsUnreachable(connectionName);
+                        activeConnectionManager.closeActiveConnection(connectionName);
                         iterator.remove();
                     }
                 }

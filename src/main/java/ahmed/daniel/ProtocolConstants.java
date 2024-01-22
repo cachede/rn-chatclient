@@ -96,7 +96,7 @@ public final class ProtocolConstants {
     /**
      * Maximum characters per message.
      */
-    public static final int MAX_CHARACTERS_PER_MESSAGE = 320;
+    public static final int MAX_CHARACTERS_PER_MESSAGE = 255;
 
     /**
      * Size in bytes for the length field in the communication message.
@@ -109,6 +109,17 @@ public final class ProtocolConstants {
     public static final int COMMUNICATION_MESSAGE_LENGTH_INDEX = 0;
 
     // Routingeintragspaket
+
+    /**
+     * The timeintervall that is being waited on until the next routing update
+     */
+    public static int TIME_BETWEEN_ROUTING_UPDATES_IN_MS = 5000;
+
+    /**
+     * After that time, the client closes the connection, if no routingpackage was received
+     */
+    public static int TIME_FOR_ROUTING_UPDATE_UNTIL_DISCONNECT = 20000;
+
     /**
      * Size in bytes for the destination field in the routing entry.
      */

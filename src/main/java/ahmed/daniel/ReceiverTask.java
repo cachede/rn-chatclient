@@ -9,10 +9,8 @@ import ahmed.daniel.routing.RoutingTableManager;
 
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.io.*;
-import java.util.List;
 
 
 /**
@@ -24,6 +22,10 @@ public class ReceiverTask implements Runnable {
     private final String name;
     private final ActiveConnectionManager activeConnectionManager;
     private final RoutingTableManager routingTableManager;
+    private String connectedName;
+
+    private Timer timer;
+
 
     // Basisheader
     private byte basisheaderType;
@@ -36,7 +38,7 @@ public class ReceiverTask implements Runnable {
      * Constructs a new ReceiverTask with the specified parameters.
      *
      * @param socket                The socket used for communication
-     * @param name                  The name of the client
+     * @param name                  The name of the receiving client
      * @param activeConnections    The manager for active connections
      * @param routingTableManager  The manager for the routing table
      */
@@ -45,6 +47,18 @@ public class ReceiverTask implements Runnable {
         this.name = name;
         this.activeConnectionManager = activeConnections;
         this.routingTableManager = routingTableManager;
+        this.connectedName= ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET;
+
+        this.timer = new Timer();
+        resetTimer();
+    }
+
+    /**
+     * Runs the receiver task by invoking the message receiving method.
+     */
+    @Override
+    public void run() {
+        receiveMessage();
     }
 
     private void receiveMessage() {
@@ -113,21 +127,32 @@ public class ReceiverTask implements Runnable {
                         System.out.println("Keine Ahnung was das fuer ein Paket");
                         break;
                 }
-
             }
-
         } catch (IOException e) {
-            //TODO: IOException richtig behandeln
+            System.err.println("There was an exception while receiving! The connection will now be closed!");
+            stopReceiving();
         }
-
     }
 
-    /**
-     * Runs the receiver task by invoking the message receiving method.
-     */
-    @Override
-    public void run() {
-        receiveMessage();
+    private void resetTimer() {
+        timer.cancel();
+        timer = new Timer();
+        timer.schedule(new CloseReceiverTask(), ProtocolConstants.TIME_FOR_ROUTING_UPDATE_UNTIL_DISCONNECT);
+    }
+
+    private class CloseReceiverTask extends TimerTask {
+        @Override
+        public void run() {
+            stopReceiving();
+        }
+    }
+
+    private void stopReceiving(){
+        timer.cancel();
+        activeConnectionManager.closeActiveConnection(this.connectedName);
+        activeConnectionManager.removeActiveConnection(this.connectedName);
+        routingTableManager.setSourceAsUnreachable(this.connectedName);
+        Thread.currentThread().interrupt();
     }
 
     private void extractBasisheader(byte[] basisheaderBuffer) {
@@ -187,9 +212,12 @@ public class ReceiverTask implements Runnable {
             Message namePackage = new ConnectionMessage(this.name, this.basisheaderNewTtl);
             namePackage.sendTo(this.socket, this.basisheaderSourceName);
         }
+
+        this.connectedName = this.basisheaderSourceName;
     }
 
     private void handleRoutingpaket(List<RoutingTableEntry> routingTable){
+        resetTimer();
         for (RoutingTableEntry routingTableEntry : routingTable) {
             if (!routingTableEntry.getDestination().equals(this.name)) {
                 // wenn wir active con schon haben -> gucken ob hop count von neuer kleiner ist -> dann ersetzen
@@ -224,4 +252,3 @@ public class ReceiverTask implements Runnable {
         }
     }
 }
-
