@@ -6,6 +6,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 /**
  * A message which is being send to Participants in the network contains a Header which is implemented in this abstract
@@ -51,11 +52,10 @@ public abstract class Message {
      * The value in a Message differs, in how it is encoded. Every class that extends the Message class should provide
      * a implementation of this function, for whatever the message should contain as a value.
      * @return  a byte-array which contains the value encoded in bytes
-     * @throws UnsupportedEncodingException
      */
-    protected abstract byte[] getPayloadInBytes() throws UnsupportedEncodingException;
+    protected abstract byte[] getPayloadInBytes();
 
-    private byte[] buildMessage(String destinationName) throws UnsupportedEncodingException {
+    private byte[] buildMessage(String destinationName) {
         byte[] payload = getPayloadInBytes();
         byte[] basisHeader = getBasisHeader(destinationName);
 
@@ -80,11 +80,9 @@ public abstract class Message {
 
         // Destination-Name
         byte[] destNameBytes = new byte[ProtocolConstants.DESTINATION_NETWORK_NAME_SIZE_IN_BYTE];
-        try {
-            destNameBytes = destinationName.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            System.out.println("ERROR: ADDBASISHEADER CONVERT DEST TO BYTE[]");
-        }
+
+        destNameBytes = destinationName.getBytes(StandardCharsets.UTF_8);
+
 
         for (int destIndex = 0, byteStreamIndex = ProtocolConstants.TYPE_SIZE_IN_BYTE + ProtocolConstants.TTL_SIZE_IN_BYTE;
              destIndex < ProtocolConstants.DESTINATION_NETWORK_NAME_SIZE_IN_BYTE;
@@ -96,11 +94,9 @@ public abstract class Message {
 
         // Source-Name
         byte[] sourceNameBytes = new byte[ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE];
-        try {
-            sourceNameBytes = this.sourceName.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            System.out.println("ERROR: ADDBASISHEADER CONVERT SRC TO BYTE[]");
-        }
+
+        sourceNameBytes = this.sourceName.getBytes(StandardCharsets.UTF_8);
+
         for (int srcIndex = 0, byteStreamIndex = ProtocolConstants.TYPE_SIZE_IN_BYTE + ProtocolConstants.TTL_SIZE_IN_BYTE
                 + ProtocolConstants.DESTINATION_NETWORK_NAME_SIZE_IN_BYTE; srcIndex < ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE;
              srcIndex++, byteStreamIndex++) {

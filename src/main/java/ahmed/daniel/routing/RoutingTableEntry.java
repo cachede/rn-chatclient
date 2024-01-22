@@ -1,10 +1,8 @@
 package ahmed.daniel.routing;
-
 import ahmed.daniel.ProtocolConstants;
-
 import java.util.Objects;
 
-public class RoutingTable {
+public class RoutingTableEntry {
     
 
     private String destination;
@@ -12,7 +10,7 @@ public class RoutingTable {
     private byte hopCount;
 
 
-    public RoutingTable(String destination, String nextHop, byte hopCount) {
+    public RoutingTableEntry(String destination, String nextHop, byte hopCount) {
 
         this.destination = destination;
         this.nextHop= nextHop;
@@ -57,7 +55,7 @@ public class RoutingTable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RoutingTable that = (RoutingTable) o;
+        RoutingTableEntry that = (RoutingTableEntry) o;
         return Objects.equals(destination, that.destination) && Objects.equals(nextHop, that.nextHop);
     }
 

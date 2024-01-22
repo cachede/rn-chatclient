@@ -1,6 +1,6 @@
 import ahmed.daniel.Messages.*;
 import ahmed.daniel.ProtocolConstants;
-import ahmed.daniel.routing.RoutingTable;
+import ahmed.daniel.routing.RoutingTableEntry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +11,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -76,7 +75,7 @@ public class MessageTest {
 
             byte[] byteStream = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE];
             in.readFully(byteStream);
-            String gotString = new String(byteStream, "UTF-8");
+            String gotString = new String(byteStream, StandardCharsets.UTF_8);
             System.out.println(gotString);
 
             assertFalse(gotString.isEmpty());
@@ -131,7 +130,7 @@ public class MessageTest {
             in.readFully(byteStream);
             byte[] sourceNameByte = new byte[ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE];
             System.arraycopy(byteStream, ProtocolConstants.SOURCE_NETWORK_NAME_LOWER, sourceNameByte, 0, ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE);
-            String sourceNameString = new String(sourceNameByte, "UTF-8");
+            String sourceNameString = new String(sourceNameByte, StandardCharsets.UTF_8);
             assertEquals(sourceNameString, sourceName);
             assertEquals(sourceNameString.length(), ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE);
 
@@ -151,7 +150,7 @@ public class MessageTest {
             in.readFully(byteStream);
             byte[] destinationnameByte = new byte[ProtocolConstants.DESTINATION_NETWORK_NAME_SIZE_IN_BYTE];
             System.arraycopy(byteStream, ProtocolConstants.DESTINATION_NETWORK_NAME_LOWER, destinationnameByte, 0, ProtocolConstants.DESTINATION_NETWORK_NAME_SIZE_IN_BYTE);
-            String sourceNameString = new String(destinationnameByte, "UTF-8");
+            String sourceNameString = new String(destinationnameByte, StandardCharsets.UTF_8);
             assertEquals(sourceNameString, "zzz");
             assertEquals(sourceNameString.length(), ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE);
         } catch (IOException e) {
@@ -193,7 +192,7 @@ public class MessageTest {
             byte[] payloadStream = new byte[payloadString.length()];
             System.arraycopy(byteStream, ProtocolConstants.BASISHEADER_SIZE_IN_BYTE + ProtocolConstants.COMMUNICATION_MESSAGE_LENGTH_IN_BYTE
             ,payloadStream, 0, payloadString.length());
-            String payloadGotString = new String(payloadStream, "UTF-8");
+            String payloadGotString = new String(payloadStream, StandardCharsets.UTF_8);
             assertEquals(payloadGotString, payloadString);
 
         } catch (IOException e) {
@@ -203,8 +202,8 @@ public class MessageTest {
 
     @Test
     public void testRoutingTableAmountOfEntries() {
-        RoutingTable routingTable = new RoutingTable("DAN", "DAN", (byte)1);
-        List<RoutingTable> routingTableList = new LinkedList<>();
+        RoutingTableEntry routingTable = new RoutingTableEntry("DAN", "DAN", (byte)1);
+        List<RoutingTableEntry> routingTableList = new LinkedList<>();
         routingTableList.add(routingTable);
 
         try {
@@ -220,12 +219,12 @@ public class MessageTest {
             //extract routingStream
             byte[] routingStreamDestination = new byte[ProtocolConstants.ROUTING_DESTINATION_SIZE_IN_BYTE];
             System.arraycopy(routingStream, ProtocolConstants.ROUTING_INDEX_OF_DESTINATION, routingStreamDestination, 0, ProtocolConstants.ROUTING_DESTINATION_SIZE_IN_BYTE);
-            String routingDestination = new String(routingStreamDestination, "UTF-8");
+            String routingDestination = new String(routingStreamDestination, StandardCharsets.UTF_8);
             assertEquals(routingTableList.get(0).getDestination(), routingDestination);
 
             byte[] routingStreamNexthop = new byte[ProtocolConstants.ROUTING_NEXT_HOP_SIZE_IN_BYTE];
             System.arraycopy(routingStream, ProtocolConstants.ROUTING_INDEX_OF_NEXTHOP, routingStreamNexthop, 0, ProtocolConstants.ROUTING_NEXT_HOP_SIZE_IN_BYTE);
-            String routingNexthop = new String(routingStreamNexthop, "UTF-8");
+            String routingNexthop = new String(routingStreamNexthop, StandardCharsets.UTF_8);
             assertEquals(routingTableList.get(0).getNextHop(), routingNexthop);
 
             byte routingStreamHopcount = routingStream[ProtocolConstants.ROUTING_INDEX_OF_HOP_COUNT];

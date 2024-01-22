@@ -24,7 +24,7 @@ public class RoutingTableThread extends TimerTask {
     @Override
     public void run() {
 
-        List<RoutingTable> routingList = List.copyOf(this.routingTableManager.getRoutingTables());
+        List<RoutingTableEntry> routingList = List.copyOf(this.routingTableManager.getRoutingTables());
 
         synchronized (activeConnectionManager.getActiveConnections()){
             Iterator<Map.Entry<String, Socket>> iterator = activeConnectionManager.getActiveConnectionEntrySet().iterator();
@@ -59,12 +59,12 @@ public class RoutingTableThread extends TimerTask {
 
     }
 
-    private List<RoutingTable> getExtractedRoutingTable(List<RoutingTable> routingTables, String connectionName){
-        List<RoutingTable> newRoutingTable = List.copyOf(routingTables);
+    private List<RoutingTableEntry> getExtractedRoutingTable(List<RoutingTableEntry> routingTables, String connectionName){
+        List<RoutingTableEntry> newRoutingTable = List.copyOf(routingTables);
 
         // Only keep the best Route to a Destination
-        Map<String, RoutingTable> bestRoutes = new HashMap<>();
-        for (RoutingTable routingTableEntry : newRoutingTable) {
+        Map<String, RoutingTableEntry> bestRoutes = new HashMap<>();
+        for (RoutingTableEntry routingTableEntry : newRoutingTable) {
             String destination = routingTableEntry.getDestination();
             String nextHop = routingTableEntry.getNextHop();
             int hopCount = routingTableEntry.getHopCount();
@@ -80,15 +80,15 @@ public class RoutingTableThread extends TimerTask {
         }
 
         //Remove If destination if same as conncetion name
-        List<RoutingTable> bestRoutesList = new ArrayList<>(bestRoutes.values());
+        List<RoutingTableEntry> bestRoutesList = new ArrayList<>(bestRoutes.values());
         bestRoutesList.removeIf(routingTableEntry -> routingTableEntry.getDestination().equals(connectionName)); //|| routingTable.getNextHop().equals(connectionName));
 
-        List<RoutingTable> routesAfterPoisionReverse = new ArrayList<>();
+        List<RoutingTableEntry> routesAfterPoisionReverse = new ArrayList<>();
 
         // Poision Reverse
-        for(RoutingTable routingTableEntry : bestRoutesList){
+        for(RoutingTableEntry routingTableEntry : bestRoutesList){
             if (routingTableEntry.getNextHop().equals(connectionName)){
-                routesAfterPoisionReverse.add(new RoutingTable(routingTableEntry.getDestination(), routingTableEntry.getNextHop(), ProtocolConstants.ROUTING_MAX_HOPCOUNT));
+                routesAfterPoisionReverse.add(new RoutingTableEntry(routingTableEntry.getDestination(), routingTableEntry.getNextHop(), ProtocolConstants.ROUTING_MAX_HOPCOUNT));
             } else {
                 routesAfterPoisionReverse.add(routingTableEntry);
             }

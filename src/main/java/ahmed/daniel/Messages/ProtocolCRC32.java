@@ -27,6 +27,20 @@ public class ProtocolCRC32 {
         buffer.flip();
         return buffer.getLong();
     }
+    public static boolean checkSumIsCorrect(byte[] basisheader, byte[] payload, byte[] expectedChecsumCRC32Bytes) {
+        byte[] tmp = new byte[4 + expectedChecsumCRC32Bytes.length];
+        byte[] fillBytes = {0, 0, 0, 0};
+        System.arraycopy(fillBytes, 0, tmp, 0, 4);
+        System.arraycopy(expectedChecsumCRC32Bytes, 0, tmp, 4, expectedChecsumCRC32Bytes.length);
+        long expectedChecksumCRC32 = ProtocolCRC32.bytesToLong(tmp);
 
+        byte[] valuesForCRC32Calculation = new byte[basisheader.length + payload.length];
+        System.arraycopy(basisheader, 0, valuesForCRC32Calculation, 0, basisheader.length);
+
+        System.arraycopy(payload, 0, valuesForCRC32Calculation, basisheader.length, payload.length);
+        long currentChecksumCRC32 = ProtocolCRC32.getCRC32Checksum(valuesForCRC32Calculation);
+
+        return expectedChecksumCRC32 == currentChecksumCRC32;
+    }
 
 }

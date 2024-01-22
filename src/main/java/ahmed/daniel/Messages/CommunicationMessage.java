@@ -5,6 +5,7 @@ import ahmed.daniel.ProtocolConstants;
 
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Extends the Message class in order to convert a plain-text (String) into a bytestream(bytearray)
@@ -26,8 +27,8 @@ public class CommunicationMessage extends Message {
 
 
     @Override
-    protected byte[] getPayloadInBytes() throws UnsupportedEncodingException {
-        byte[] payloadBytes = this.payload.getBytes("UTF-8");
+    protected byte[] getPayloadInBytes() {
+        byte[] payloadBytes = this.payload.getBytes(StandardCharsets.UTF_8);
         int payloadSize = payloadBytes.length;
 
         byte[] communicationMessage = new byte[ProtocolConstants.COMMUNICATION_MESSAGE_LENGTH_IN_BYTE + payloadSize];

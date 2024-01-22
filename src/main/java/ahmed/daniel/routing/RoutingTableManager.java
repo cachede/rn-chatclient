@@ -7,39 +7,39 @@ import java.util.LinkedList;
 
 public class RoutingTableManager{
 
-    private final List<RoutingTable> routingtables;
+    private final List<RoutingTableEntry> routingtable;
 
     public RoutingTableManager() {
-        this.routingtables = Collections.synchronizedList(new LinkedList<>());
+        this.routingtable = Collections.synchronizedList(new LinkedList<>());
     }
     
-    public List<RoutingTable> getRoutingTables(){
-        synchronized (this.routingtables) {
-            return this.routingtables;
+    public List<RoutingTableEntry> getRoutingTables(){
+        synchronized (this.routingtable) {
+            return this.routingtable;
         }
     }
     
     public void addRoutingTableEntry(String destination, String nextHop, byte hopCount){
-        synchronized (this.routingtables){
+        synchronized (this.routingtable){
             // Unreachable
             if(hopCount >= ProtocolConstants.ROUTING_DESTINATION_UNREACHABLE) {
                 hopCount = ProtocolConstants.ROUTING_DESTINATION_UNREACHABLE;
             }
 
-            RoutingTable newRoutingTable = new RoutingTable(destination, nextHop, hopCount);
-            if(this.routingtables.contains(newRoutingTable)) {
+            RoutingTableEntry newRoutingTable = new RoutingTableEntry(destination, nextHop, hopCount);
+            if(this.routingtable.contains(newRoutingTable)) {
                 updateHopCountOfRoutingTable(destination, nextHop, hopCount);
                 return;
             }
 
-            this.routingtables.add(newRoutingTable);
+            this.routingtable.add(newRoutingTable);
         }
     }
 
 
     private void updateHopCountOfRoutingTable(String destination, String nextHop, byte newHopCount){
-        synchronized (this.routingtables) {
-            for(RoutingTable routingTable : this.routingtables){
+        synchronized (this.routingtable) {
+            for(RoutingTableEntry routingTable : this.routingtable){
                 if(routingTable.getDestination().equals(destination) && routingTable.getNextHop().equals(nextHop)){
                     routingTable.setHopCount(newHopCount);
                 }
@@ -48,14 +48,14 @@ public class RoutingTableManager{
     }
 
     public int getSize() {
-        synchronized (this.routingtables) {
-            return routingtables.size();
+        synchronized (this.routingtable) {
+            return routingtable.size();
         }
     }
 
     public void setSourceAsUnreachable(String source) {
-        synchronized (this.routingtables){
-            for(RoutingTable routingTable : this.routingtables){
+        synchronized (this.routingtable){
+            for(RoutingTableEntry routingTable : this.routingtable){
                 if (routingTable.getNextHop().equals(source)){
                     routingTable.setAsUnreachable();
                 }
@@ -70,11 +70,11 @@ public class RoutingTableManager{
      *         else -> the nextHop for the shortest path
      */
     public String getRouteWithMinHopCountForDestination(String destination){
-        synchronized (this.routingtables) {
+        synchronized (this.routingtable) {
             String minHopCountNextHop = null;
             byte minHopCount = ProtocolConstants.ROUTING_MAX_HOPCOUNT;
 
-            for (RoutingTable routingTable : this.routingtables){
+            for (RoutingTableEntry routingTable : this.routingtable){
                 if (destination.equals(routingTable.getDestination()) && routingTable.getHopCount() < minHopCount){
                     minHopCountNextHop = routingTable.getNextHop();
                     minHopCount = routingTable.getHopCount();
@@ -86,10 +86,10 @@ public class RoutingTableManager{
     }
 
     public byte getMinHopCountForDestination(String destination){
-        synchronized (this.routingtables) {
+        synchronized (this.routingtable) {
             byte minHopCount = ProtocolConstants.ROUTING_MAX_HOPCOUNT;
 
-            for (RoutingTable routingTable : this.routingtables){
+            for (RoutingTableEntry routingTable : this.routingtable){
                 if(destination.equals(routingTable.getDestination()) && routingTable.getHopCount() < minHopCount){
                     minHopCount = routingTable.getHopCount();
                 }
@@ -101,8 +101,8 @@ public class RoutingTableManager{
     }
 
     public void printAllRoutingTables(){
-        synchronized (this.routingtables) {
-            for(RoutingTable routingTable : this.routingtables){
+        synchronized (this.routingtable) {
+            for(RoutingTableEntry routingTable : this.routingtable){
                 routingTable.printRoutingTable();
             }
         }
