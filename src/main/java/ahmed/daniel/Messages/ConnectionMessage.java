@@ -10,8 +10,8 @@ import java.net.Socket;
  */
 public class ConnectionMessage extends Message {
 
-    public ConnectionMessage(String sourceName){
-        super(ProtocolConstants.TYPE_VERBINDUNGSPAKET, sourceName);
+    public ConnectionMessage(String sourceName, byte ttl){
+        super(ProtocolConstants.TYPE_VERBINDUNGSPAKET, ttl, sourceName);
     }
 
     @Override

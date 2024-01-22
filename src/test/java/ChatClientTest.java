@@ -3,6 +3,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ahmed.daniel.ChatClient;
+import org.awaitility.Durations;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.InetAddress;
+import java.util.concurrent.TimeUnit;
 
 import org.awaitility.Awaitility.*;
 
@@ -47,7 +49,7 @@ public class ChatClientTest {
     void testOneConnection() {
         chatClient1.addNewConnection("localhost", 8090);
 
-        await().until(() -> chatClient1.getActiveConnectionNames().size() == 1);
+        await().atMost(5, TimeUnit.SECONDS).until(() -> chatClient1.getActiveConnectionNames().size() == 1);
 
         assertEquals(1, chatClient1.getActiveConnections().size());
         assertEquals(1, chatClient2.getActiveConnections().size());
@@ -58,7 +60,7 @@ public class ChatClientTest {
     void testNameExchange() {
         chatClient1.addNewConnection("localhost", 8090);
 
-        await().until(() -> chatClient1.getActiveConnectionNames().size() == 1
+        await().atMost(5, TimeUnit.SECONDS).until(() -> chatClient1.getActiveConnectionNames().size() == 1
                 && chatClient2.getActiveConnectionNames().size() == 1);
 
         assertTrue(chatClient1.getActiveConnectionNames().contains("AHM"));
@@ -75,16 +77,17 @@ public class ChatClientTest {
         chatClient1.addNewConnection("localhost", 8090);
         if (chatClient1.getActiveConnectionNames().size() == 1) {}
 
-        await().until(() -> chatClient1.getActiveConnectionNames().size() == 1
+        await().atMost(5, TimeUnit.SECONDS).until(() -> chatClient1.getActiveConnectionNames().size() == 1
                 && chatClient2.getActiveConnectionNames().size() == 1);
 
         chatClient1.sendMessage(textMessage, "AHM");
 
-        await().until(() -> !outputStreamCaptor.toString().trim().isEmpty());
+        await().atMost(5, TimeUnit.SECONDS).until(() -> !outputStreamCaptor.toString().trim().isEmpty());
 
         assertEquals("DAN: " + textMessage, outputStreamCaptor.toString().trim());
     }
 
+    //TODO: test if the TTL-Count was decremented
 
 
 

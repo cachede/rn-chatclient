@@ -25,16 +25,13 @@ public class RoutingTableThread extends TimerTask {
     public void run() {
 
         List<RoutingTable> routingList = List.copyOf(this.routingTableManager.getRoutingTables());
-        //Message routingMessage = new RoutingMessage(this.name, routingList);
-
 
         synchronized (activeConnectionManager.getActiveConnections()){
-            //Iterator<String> iterator = activeConnectionManager.getAllActiveConnectionNames().iterator();
             Iterator<Map.Entry<String, Socket>> iterator = activeConnectionManager.getActiveConnectionEntrySet().iterator();
 
             while(iterator.hasNext()) {
                 String connectionName = iterator.next().getKey();
-                Message routingMessage = new RoutingMessage(this.name, getExtractedRoutingTable(routingList, connectionName));
+                Message routingMessage = new RoutingMessage(this.name, ProtocolConstants.TTL, getExtractedRoutingTable(routingList, connectionName));
 
                 // Check if active Connection is still active
                 int minHopCountToConnection = routingTableManager.getMinHopCountForDestination(connectionName);
@@ -53,9 +50,6 @@ public class RoutingTableThread extends TimerTask {
                         System.out.println("No connection to " + connectionName + "... setting as unreachable");
                         routingTableManager.setSourceAsUnreachable(connectionName);
 
-                        // TODO Only remove if it was only route to destination -> otherwise -> update the socket
-                        // TODO Remove trasitive -> for example: if a is dead and the only way to b was via a -> than b also dies
-                        // IDEA: iterate through destinations and remove all dest in active connections that have minHopCount == 16
                         activeConnectionManager.CloseActiveConnection(connectionName);
                         iterator.remove();
                     }
@@ -72,29 +66,34 @@ public class RoutingTableThread extends TimerTask {
         Map<String, RoutingTable> bestRoutes = new HashMap<>();
         for (RoutingTable routingTableEntry : newRoutingTable) {
             String destination = routingTableEntry.getDestination();
+            String nextHop = routingTableEntry.getNextHop();
             int hopCount = routingTableEntry.getHopCount();
 
-            if (!bestRoutes.containsKey(destination) ||  hopCount < bestRoutes.get(destination).getHopCount()) {
+
+            if (!bestRoutes.containsKey(destination)) {
+                bestRoutes.put(destination, routingTableEntry);
+            } else if (hopCount < bestRoutes.get(destination).getHopCount()){
+                bestRoutes.put(destination, routingTableEntry);
+            } else if (hopCount == bestRoutes.get(destination).getHopCount() && !nextHop.equals(connectionName)){
                 bestRoutes.put(destination, routingTableEntry);
             }
         }
 
-        //Remove If destination if same as conncetion name and Split Horizon
+        //Remove If destination if same as conncetion name
         List<RoutingTable> bestRoutesList = new ArrayList<>(bestRoutes.values());
         bestRoutesList.removeIf(routingTableEntry -> routingTableEntry.getDestination().equals(connectionName)); //|| routingTable.getNextHop().equals(connectionName));
 
-        List<RoutingTable> finalList = new ArrayList<>();
+        List<RoutingTable> routesAfterPoisionReverse = new ArrayList<>();
+
         // Poision Reverse
         for(RoutingTable routingTableEntry : bestRoutesList){
             if (routingTableEntry.getNextHop().equals(connectionName)){
-                //routingTableEntry.setHopCount(ProtocolConstants.ROUTING_MAX_HOPCOUNT); // TODO not working
-                finalList.add(new RoutingTable(routingTableEntry.getDestination(), routingTableEntry.getNextHop(), ProtocolConstants.ROUTING_MAX_HOPCOUNT));
+                routesAfterPoisionReverse.add(new RoutingTable(routingTableEntry.getDestination(), routingTableEntry.getNextHop(), ProtocolConstants.ROUTING_MAX_HOPCOUNT));
             } else {
-                finalList.add(routingTableEntry);
+                routesAfterPoisionReverse.add(routingTableEntry);
             }
         }
 
-
-        return finalList;
+        return routesAfterPoisionReverse;
     }
 }

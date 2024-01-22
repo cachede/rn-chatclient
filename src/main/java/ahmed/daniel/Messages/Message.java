@@ -14,16 +14,20 @@ import java.net.Socket;
  */
 public abstract class Message {
 
-    private final String sourceName;
+
     private final byte type;
+    private final byte ttl;
+    private final String sourceName;
 
     /**
      * Creates a Message with a specific type and source name. The type differentiates between messages/connections/routing
      * @param type          used to identify what the message contains(text/connection/routing-entries
+     * @param ttl           The time to live which exists for every Message
      * @param sourceName    The name, from which this message comes from
      */
-    public Message(byte type, String sourceName) {
+    public Message(byte type, byte ttl, String sourceName) {
         this.type = type;
+        this.ttl = ttl;
         this.sourceName = sourceName;
     }
 
@@ -71,8 +75,8 @@ public abstract class Message {
     private byte[] getBasisHeader(String destinationName) {
         byte[] basisHeader = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE];
         // Type and TTL
-        basisHeader[0] = this.type;
-        basisHeader[1] = ProtocolConstants.TTL;
+        basisHeader[ProtocolConstants.TYPE_INDEX] = this.type;
+        basisHeader[ProtocolConstants.TTL_INDEX] = this.ttl;
 
         // Destination-Name
         byte[] destNameBytes = new byte[ProtocolConstants.DESTINATION_NETWORK_NAME_SIZE_IN_BYTE];

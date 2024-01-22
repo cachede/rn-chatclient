@@ -63,6 +63,11 @@ public final class ProtocolConstants {
     // Routingpaket:
     public static final int ROUTING_AMOUNT_OF_PACKETS_INDEX = 0;
     public static final int ROUTING_AMOUNT_OF_PACKETS_SIZE_IN_BYTE = 1;
+    public static final int ROUTING_INDEX_OF_DESTINATION = 1;
+    public static final int ROUTING_INDEX_OF_NEXTHOP = ROUTING_INDEX_OF_DESTINATION + ROUTING_DESTINATION_SIZE_IN_BYTE;
+
+    public static final int ROUTING_INDEX_OF_HOP_COUNT = ROUTING_INDEX_OF_NEXTHOP + ROUTING_NEXT_HOP_SIZE_IN_BYTE;
+
     public static final int ROUTING_PAKET_SIZE_IN_BYTE = BASISHEADER_SIZE_IN_BYTE + ROUTING_AMOUNT_OF_PACKETS_SIZE_IN_BYTE;
 
     public static final byte ROUTING_MAX_HOPCOUNT = 16; //Byte.MAX_VALUE;

@@ -101,7 +101,7 @@ public class ChatClient {
     }
 
     private void sendName(Socket socket) throws IOException {
-        Message message = new ConnectionMessage(this.name);
+        Message message = new ConnectionMessage(this.name, ProtocolConstants.TTL);
         message.sendTo(socket, ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
     }
 
@@ -122,11 +122,10 @@ public class ChatClient {
         }
 
         Socket pickedSocket = activeConnectionManager.getSocketFromName(destinationName);
-        Message message = new CommunicationMessage(this.name, payload);
+        Message message = new CommunicationMessage(this.name, ProtocolConstants.TTL, payload);
 
         try {
             message.sendTo(pickedSocket, destinationName);
-
         } catch (IOException io){
             activeConnectionManager.CloseActiveConnection(destinationName);    //Zu dem man sendet kann schon disconnected sein -> Test
             routingTableManager.setSourceAsUnreachable(destinationName);

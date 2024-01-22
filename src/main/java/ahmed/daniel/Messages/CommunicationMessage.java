@@ -16,10 +16,11 @@ public class CommunicationMessage extends Message {
     /**
      *
      * @param sourceName
+     * @param ttl
      * @param payload
      */
-    public CommunicationMessage(String sourceName, String payload) {
-        super(ProtocolConstants.TYPE_MESSAGEPAKET, sourceName);
+    public CommunicationMessage(String sourceName, byte ttl, String payload) {
+        super(ProtocolConstants.TYPE_MESSAGEPAKET, ttl, sourceName);
         this.payload = payload;
     }
 
