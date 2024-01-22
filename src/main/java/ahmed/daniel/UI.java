@@ -10,12 +10,12 @@ import java.util.Scanner;
  * the user a help board, which shows the user of the application how to interact with the program.
  */
 public class UI {
-    
-    public final String CONNECT_TO = "1";
-    public final String SEND_MESSAGE = "2";
-    public final String SHOW_PARTICIPANTS = "3";
-    public final String SHOW_HELP = "h";
-    public final String QUIT_PROGRAM = "q";
+    private final String CONNECT_TO = "1";
+    private final String SEND_MESSAGE = "2";
+
+    private final String SHOW_PARTICIPANTS = "3";
+    private final String SHOW_HELP = "h";
+    private final String QUIT_PROGRAM = "q";
 
     private final ChatClient chatClient;
 

@@ -1,4 +1,4 @@
-import ahmed.daniel.Messages.*;
+import ahmed.daniel.messages.*;
 import ahmed.daniel.ProtocolConstants;
 import ahmed.daniel.routing.RoutingTableEntry;
 import org.junit.jupiter.api.AfterEach;

@@ -1,8 +1,8 @@
 package ahmed.daniel.routing;
 
 import ahmed.daniel.ActiveConnectionManager;
-import ahmed.daniel.Messages.Message;
-import ahmed.daniel.Messages.RoutingMessage;
+import ahmed.daniel.messages.Message;
+import ahmed.daniel.messages.RoutingMessage;
 import ahmed.daniel.ProtocolConstants;
 import java.io.IOException;
 import java.net.Socket;

@@ -1,4 +1,4 @@
-package ahmed.daniel.Messages;
+package ahmed.daniel.messages;
 
 import ahmed.daniel.ProtocolConstants;
 import java.io.DataOutputStream;

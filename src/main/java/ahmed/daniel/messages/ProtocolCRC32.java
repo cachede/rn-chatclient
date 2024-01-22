@@ -1,4 +1,4 @@
-package ahmed.daniel.Messages;
+package ahmed.daniel.messages;
 
 import ahmed.daniel.ProtocolConstants;
 import java.nio.ByteBuffer;
@@ -8,7 +8,8 @@ import java.util.zip.Checksum;
 /**
  * ProtocolCRC32 is for calculating and handling CRC32 checksums in the communication protocol.
  */
-public class ProtocolCRC32 {
+public abstract class ProtocolCRC32 {
+    private ProtocolCRC32(){};
     /**
      * Calculates the CRC32 checksum for the given byte array
      *

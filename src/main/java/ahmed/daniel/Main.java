@@ -10,6 +10,15 @@ public class Main {
     private static final byte ARGS_IP_INDEX = 0;
     private static final byte ARGS_PORT_INDEX = 1;
     private static final byte ARGS_NAME_INDEX = 2;
+
+    /**
+     * The main method of the application.
+     *
+     * @param args Command line arguments
+     *             args[0] IPv4 Adress
+     *             args[1] port
+     *             args[2] name
+     */
     public static void main(String[] args) {
         if(args[ARGS_NAME_INDEX].equals(ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET)) {
             System.out.println("You cannot enter that name, please try another one");
@@ -24,4 +33,6 @@ public class Main {
             System.err.println("The entered IP-Address or Port are not valid, try again");
         }
     }
+
+    private Main() {}
 }

@@ -1,9 +1,9 @@
 package ahmed.daniel;
 
-import ahmed.daniel.Messages.CommunicationMessage;
-import ahmed.daniel.Messages.ConnectionMessage;
-import ahmed.daniel.Messages.Message;
-import ahmed.daniel.Messages.ProtocolCRC32;
+import ahmed.daniel.messages.CommunicationMessage;
+import ahmed.daniel.messages.ConnectionMessage;
+import ahmed.daniel.messages.Message;
+import ahmed.daniel.messages.ProtocolCRC32;
 import ahmed.daniel.routing.RoutingTableEntry;
 import ahmed.daniel.routing.RoutingTableManager;
 

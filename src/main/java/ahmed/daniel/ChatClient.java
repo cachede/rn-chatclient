@@ -1,8 +1,8 @@
 package ahmed.daniel;
 
-import ahmed.daniel.Messages.CommunicationMessage;
-import ahmed.daniel.Messages.ConnectionMessage;
-import ahmed.daniel.Messages.Message;
+import ahmed.daniel.messages.CommunicationMessage;
+import ahmed.daniel.messages.ConnectionMessage;
+import ahmed.daniel.messages.Message;
 import ahmed.daniel.routing.RoutingTableManager;
 import ahmed.daniel.routing.RoutingTableThread;
 import java.net.*;
@@ -155,6 +155,12 @@ public class ChatClient {
     }
 
     // Redirect Methods to the Managers
+
+    /**
+     * Retrieves the names of all active connections managed by this class.
+     *
+     * @return A Set containing the names of all active connections
+     */
     public Set<String> getActiveConnectionNames() {
         return this.activeConnectionManager.getAllActiveConnectionNames();
     }
