@@ -17,6 +17,7 @@ public class RoutingMessage extends Message {
     /**
      * Creates a RoutingMessage with the right type in the basisheader of a message. The payload for a routingmessage is
      * a list of RoutinTableEntries.
+     *
      * @param sourceName    The name of the destination, which should unwrap the value of a routingmessage
      * @param ttl           The Time-to-live for the RoutingMessage
      * @param payload       A list of routingtableentries, which should be send to the direct connections

@@ -18,6 +18,7 @@ public class AcceptThread implements Runnable {
 
     /**
      * Creates an AcceptThread which should listen for incoming connections and add them to the active connection.
+     *
      * @param serverSocket  AcceptThread listens on this ServerSocket for connections
      * @param name      When accepting a new Connection the AcceptThread should send his own name to the other participant
      * @param activeConnectionManager   When connection is established the AcceptThread should add it to the activeConnectionManager

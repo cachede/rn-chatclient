@@ -11,13 +11,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Handles all the connections of a ChatClient. Is used, when the ChatClient wants to send a message to a participant
- * in the network. In order to get the right Socket, to which the ChatClient sends the message, it asks the
- * ActiveConnectionManager to get a Socket, to which he sends a message. The picked Socket could be the desired
- * Participant, or a representative that could send the message further through the network. (See protocol)
- * Also this class holds a TaskPool for every active Connection, because every active Connection could send a message
- * to the ChatClient. Therefore the ChatClient needs a Thread, which receives the Messages from those active Connections
- *
+ * Manages active connections, providing a mapping from participant names to sockets.
+ * Also handles the receiving of messages through a thread pool.
  */
 public class ActiveConnectionManager{
     private final Map<String, Socket> activeConnections;
@@ -26,22 +21,29 @@ public class ActiveConnectionManager{
     private static final int MAX_RECEIVER_THREADS = 5;
 
     /**
-     * Creates a ActiveConnectionManager, which handles the mapping from Name to Socket.
-     * If a message is to be send to another participant in the network, it goes through the activeConnectionManager to
-     * get the right Socket (see protocol), regardless of what Message(see protocol).
-     * Also creates a TaskPool of 5 Threads, which handle the receiving of Messages.
+     * Creates an ActiveConnectionManager
      */
     public ActiveConnectionManager() {
         this.activeConnections = Collections.synchronizedMap(new HashMap<>());
         this.receiverPool= Executors.newFixedThreadPool(MAX_RECEIVER_THREADS);
     }
 
+    /**
+     * Gets the map of active connections.
+     *
+     * @return A synchronized map of active connections
+     */
     public Map<String, Socket> getActiveConnections(){
         synchronized (this.activeConnections) {
             return this.activeConnections;
         }
     }
 
+    /**
+     * Gets the entry set of active connections.
+     *
+     * @return A synchronized set of map entries representing active connections
+     */
     public Set<Map.Entry<String, Socket>> getActiveConnectionEntrySet(){
         synchronized (this.activeConnections){
             return this.activeConnections.entrySet();
@@ -51,6 +53,7 @@ public class ActiveConnectionManager{
     /**
      * Adds a ReceivingTask, which is responsible to receive any type of messages by his direct Participants.
      * This function will be called, when a new Connection to a Participant has been established.
+     *
      * @param recThread     A ReceivingTask to perform the message receiving
      */
     public synchronized void addReceivingTask(Runnable recThread){
@@ -107,6 +110,11 @@ public class ActiveConnectionManager{
         }
     }
 
+    /**
+     * Removes an active connection by its name.
+     *
+     * @param toBeRemovedName Name to be removed from active connections
+     */
     public void removeActiveConnection(String toBeRemovedName){
         synchronized (this.activeConnections){
             this.activeConnections.remove(toBeRemovedName);
@@ -115,6 +123,7 @@ public class ActiveConnectionManager{
 
     /**
      * Gets the entire EntrySet for all active Connections.
+     *
      * @return  A set of entries, which have the name as a key and the corresponding socket as a value
      */
     public Set<Entry<String, Socket>> getEntrySet() {

@@ -5,13 +5,28 @@ import java.nio.ByteBuffer;
 import java.util.zip.CRC32;
 import java.util.zip.Checksum;
 
+/**
+ * ProtocolCRC32 is for calculating and handling CRC32 checksums in the communication protocol.
+ */
 public class ProtocolCRC32 {
+    /**
+     * Calculates the CRC32 checksum for the given byte array
+     *
+     * @param bytes The input byte array for which the CRC32 checksum needs to be calculated
+     * @return The calculated CRC32 checksum
+     */
     public static long getCRC32Checksum(byte[] bytes) {
         Checksum crc32 = new CRC32();
         crc32.update(bytes, 0, bytes.length);
         return crc32.getValue();
     }
 
+    /**
+     * Converts a long checksum value into a byte array.
+     *
+     * @param checksum The long value representing the checksum
+     * @return The byte array representation of the checksum
+     */
     public static byte[] getChecksumBytes(long checksum){
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
         buffer.putLong(checksum);
@@ -20,12 +35,28 @@ public class ProtocolCRC32 {
         return checksumByte;
     }
 
+    /**
+     * Converts a byte array to a long value.
+     *
+     * @param bytes The byte array to be converted to a long
+     * @return The long value represented by the byte array
+     */
     public static long bytesToLong(byte[] bytes) {
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
         buffer.put(bytes);
         buffer.flip();
         return buffer.getLong();
     }
+
+    /**
+     * Checks if the given CRC32 checksum is valid by comparing it with the calculated checksum
+     * based on the provided header, payload, and expected checksum bytes.
+     *
+     * @param basisheader The basisheader bytes used in the checksum calculation
+     * @param payload The payload bytes used in the checksum calculation
+     * @param expectedChecsumCRC32Bytes The expected CRC32 checksum bytes to be validated
+     * @return True if the checksum is invalid, false otherwise
+     */
     public static boolean checkSumIsInvalid(byte[] basisheader, byte[] payload, byte[] expectedChecsumCRC32Bytes) {
         byte[] fillBytes = {0, 0, 0, 0};
         byte[] expectedChecksumCRC32WithFillBytes = new byte[fillBytes.length + expectedChecsumCRC32Bytes.length];

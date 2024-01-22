@@ -14,6 +14,10 @@ import java.util.Arrays;
 import java.io.*;
 import java.util.List;
 
+
+/**
+ * Represents a task for receiving messages on a socket and handling various types of packets.
+ */
 public class ReceiverTask implements Runnable {
 
     private final Socket socket;
@@ -28,6 +32,14 @@ public class ReceiverTask implements Runnable {
     private String basisheaderSourceName;
 
 
+    /**
+     * Constructs a new ReceiverTask with the specified parameters.
+     *
+     * @param socket                The socket used for communication
+     * @param name                  The name of the client
+     * @param activeConnections    The manager for active connections
+     * @param routingTableManager  The manager for the routing table
+     */
     public ReceiverTask(Socket socket, String name, ActiveConnectionManager activeConnections, RoutingTableManager routingTableManager) {
         this.socket = socket;
         this.name = name;
@@ -35,15 +47,6 @@ public class ReceiverTask implements Runnable {
         this.routingTableManager = routingTableManager;
     }
 
-    /**
-     * Pretty important Method. It receives (Pakets|Datagram|Messages) from the direct Connection.
-     * There are 3 different Types of Messages to be received.
-     * Type 0: Verbindungspaket. This is the first Message which will be received after the initial Connection.
-     * Type 1: Routingpaket. This Message contains no Message but a Routingtable from its direct Connections.
-     * This is useful, in order to know which Participants are connected and how to get to them. (Teilvermascht)
-     * This Message will be parsed and is the Content of the private Membervariable routingTable.
-     * Type 2: Nachrichtenpaket: This Message contains the actual Message.
-     */
     private void receiveMessage() {
         try {
             DataInputStream in = new DataInputStream(this.socket.getInputStream());
@@ -119,6 +122,9 @@ public class ReceiverTask implements Runnable {
 
     }
 
+    /**
+     * Runs the receiver task by invoking the message receiving method.
+     */
     @Override
     public void run() {
         receiveMessage();

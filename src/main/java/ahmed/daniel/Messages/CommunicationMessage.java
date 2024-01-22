@@ -11,10 +11,11 @@ public class CommunicationMessage extends Message {
     private final String payload;
 
     /**
+     * Creates a Communication-Message with a specific type and source name
      *
-     * @param sourceName
-     * @param ttl
-     * @param payload
+     * @param sourceName name of client
+     * @param ttl time to live
+     * @param payload actual message to be send
      */
     public CommunicationMessage(String sourceName, byte ttl, String payload) {
         super(ProtocolConstants.TYPE_MESSAGEPAKET, ttl, sourceName);

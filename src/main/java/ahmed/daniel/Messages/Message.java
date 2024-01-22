@@ -12,14 +12,13 @@ import java.nio.charset.StandardCharsets;
  * differs in the parameters.
  */
 public abstract class Message {
-
-
     private final byte type;
     private final byte ttl;
     private final String sourceName;
 
     /**
      * Creates a Message with a specific type and source name. The type differentiates between messages/connections/routing
+     *
      * @param type          used to identify what the message contains(text/connection/routing-entries
      * @param ttl           The time to live which exists for every Message
      * @param sourceName    The name, from which this message comes from
@@ -34,6 +33,7 @@ public abstract class Message {
      * This method is called to send a Message to a destination name. First it build the protocolheader and fills it
      * with the destination name and source name. After the header is build the method sends the byte-stream to the
      * given socket
+     *
      * @param socket    where the message should be send to
      * @param destinationName   the name of the destination which should unwrap the message
      * @throws IOException  the destination could disconnect in the process of the message building.
@@ -49,6 +49,7 @@ public abstract class Message {
     /**
      * The value in a Message differs, in how it is encoded. Every class that extends the Message class should provide
      * a implementation of this function, for whatever the message should contain as a value.
+     *
      * @return  a byte-array which contains the value encoded in bytes
      */
     protected abstract byte[] getPayloadInBytes();

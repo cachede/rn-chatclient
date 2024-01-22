@@ -3,7 +3,6 @@ package ahmed.daniel;
 import ahmed.daniel.Messages.CommunicationMessage;
 import ahmed.daniel.Messages.ConnectionMessage;
 import ahmed.daniel.Messages.Message;
-import ahmed.daniel.Messages.ProtocolCRC32;
 import ahmed.daniel.routing.RoutingTableManager;
 import ahmed.daniel.routing.RoutingTableThread;
 import java.net.*;
@@ -65,6 +64,7 @@ public class ChatClient {
      * Adds a bidirectional Connection to given Ipv4-Address and Port. After the Socket is established both
      * participants exchange their name, so they know about each other. After that the user is able to send messages
      * to the desired participant on the network.
+     *
      * @param ipv4address   the ipv4-address to which the client wants to connect to
      * @param port  the port on which the other participant waits for connections
      */
@@ -83,12 +83,6 @@ public class ChatClient {
         }
     }
 
-    /**
-     * This method is used, when the ChatClient wants to connect to another Client. The other Client is referenced
-     * by his IPv4-Address.
-     * @param ipAddress -   IPv4-Address of the desired Client
-     * @param port      -   Port on which you want to connect
-     */
     private Socket connectTo(InetAddress ipAddress, int port) throws IOException {
         Socket newSocket = new Socket(ipAddress, port);
         sendName(newSocket);
@@ -103,8 +97,9 @@ public class ChatClient {
     /**
      * Sends a ASCII-Message to a connected Participant in the network. The desired Participant could be directly connected,
      * or transitive connected.
-     * @param payload           -   Plain text message to be send
-     * @param destinationName   -   Name of the Destination which should receive the Message
+     *
+     * @param payload              Plain text message to be send
+     * @param destinationName      Name of the Destination which should receive the Message
      */
     public void sendMessage(String payload, String destinationName) {
         if(payload.length() >= ProtocolConstants.MAX_CHARACTERS_PER_MESSAGE){
@@ -133,10 +128,7 @@ public class ChatClient {
 
     /**
      * Disconnects the Client from the Network. The Client DOES NOT send all active Connections, that he just disconnected.
-     * It can never be guaranteed, that every Client in our Network disconnects smoothly (he could be bombed).
-     * Thus we are not even trying to disconnect smoothly, by informing every direct Connection, that we disconnected.
-     * Every Client in our Network should just accept the fact, that not every message he sends can arrive, IF the other
-     * client disconnected
+     * It can never be guaranteed, that every Client in our Network disconnects smoothly
      */
     public void disconnect() {
         stopRouting();

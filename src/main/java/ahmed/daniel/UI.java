@@ -21,8 +21,8 @@ public class UI {
 
     /**
      * Creates instance of the UI. The UI needs a ChatClient on which it calls the corresponding functionality,
-     * which the user desires.
-     * enters
+     * which the user enters.
+     *
      * @param chatClient    A ChatClient object on which connecting
      */
     public UI(ChatClient chatClient) {
@@ -45,17 +45,22 @@ public class UI {
             String input = scanner.nextLine().toLowerCase();
             switch (input) {
                 case CONNECT_TO: {
-                    System.out.println("IPV4-ADDRESS: ");
-                    String ipv4address = scanner.nextLine();
-                    System.out.println("PORT: ");
-                    int port = Integer.parseInt(scanner.nextLine());
-                    chatClient.addNewConnection(ipv4address, port);
+                    try {
+                        System.out.println("IPV4-ADDRESS: ");
+                        String ipv4address = scanner.nextLine();
+                        System.out.println("PORT: ");
+                        int port = Integer.parseInt(scanner.nextLine());
+                        chatClient.addNewConnection(ipv4address, port);
+
+                    }catch (NumberFormatException nfe) {
+                        System.out.println("Please enter a valid IP/Port");
+                    }
                     break;
                 }
                 case SEND_MESSAGE: {
                     System.out.print("MESSAGE: ");
                     String message = scanner.nextLine();
-                    System.out.print("Sende eine Message an NAME: ");
+                    System.out.print("Send a message to NAME: ");
                     String destinationName = scanner.nextLine();
 
                     chatClient.sendMessage(message, destinationName);

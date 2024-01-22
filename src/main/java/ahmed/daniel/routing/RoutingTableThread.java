@@ -8,18 +8,33 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.*;
 
+/**
+ * This class represents a TimerTask for periodic routing table updates and communication with active neighbors.
+ * It sends routing information to direct neighbors and manages the state of active connections.
+ */
 public class RoutingTableThread extends TimerTask {
 
     private final RoutingTableManager routingTableManager;
     private final ActiveConnectionManager activeConnectionManager;
     private final String name;
 
+    /**
+     * Constructs a RoutingTableThread with the specified parameters.
+     *
+     * @param routingTableManager       The routing table manager to use for routing information
+     * @param activeConnectionManager   The manager for active connections
+     * @param name                      The client name
+     */
     public RoutingTableThread(RoutingTableManager routingTableManager, ActiveConnectionManager activeConnectionManager, String name) {
         this.routingTableManager = routingTableManager;
         this.activeConnectionManager = activeConnectionManager;
         this.name = name;
     }
 
+    /**
+     * The run method of the TimerTask. Periodically sends routing information to active direct neighbors.
+     * Also checks if clients in active connection manager are still active and otherwise removes them.
+     */
     @Override
     public void run() {
 
