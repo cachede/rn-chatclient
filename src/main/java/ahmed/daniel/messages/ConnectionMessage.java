@@ -11,10 +11,9 @@ public class ConnectionMessage extends Message {
      * Creates a ConnectionMessage, which will be used to connect to a client
      *
      * @param sourceName name of client
-     * @param ttl time to live
      */
-    public ConnectionMessage(String sourceName, byte ttl){
-        super(ProtocolConstants.TYPE_VERBINDUNGSPAKET, ttl, sourceName);
+    public ConnectionMessage(String sourceName){
+        super(ProtocolConstants.TYPE_VERBINDUNGSPAKET, ProtocolConstants.TTL, sourceName);
     }
 
     @Override

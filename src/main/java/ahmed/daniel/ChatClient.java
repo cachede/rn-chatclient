@@ -88,7 +88,7 @@ public class ChatClient {
     }
 
     private void sendName(Socket socket) throws IOException {
-        Message message = new ConnectionMessage(this.name, ProtocolConstants.TTL);
+        Message message = new ConnectionMessage(this.name);
         message.sendTo(socket, ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
     }
 

@@ -70,7 +70,7 @@ public class MessageTest {
     public void testForSizeConnectionMessage() {
         try {
             DataInputStream in = new DataInputStream(server.getInputStream());
-            Message connectionMessage = new ConnectionMessage(sourceName, ProtocolConstants.TTL);
+            Message connectionMessage = new ConnectionMessage(sourceName);
             connectionMessage.sendTo(client, ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
 
             byte[] byteStream = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE];
@@ -90,7 +90,7 @@ public class MessageTest {
     public void testForTypeConnectionMessage() {
         try {
             DataInputStream in = new DataInputStream(server.getInputStream());
-            Message connectionMessage = new ConnectionMessage(sourceName, ProtocolConstants.TTL);
+            Message connectionMessage = new ConnectionMessage(sourceName);
             connectionMessage.sendTo(client, ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
 
             byte type = in.readByte();
@@ -105,7 +105,7 @@ public class MessageTest {
     public void testForTTLConnectionMessage() {
         try {
             DataInputStream in = new DataInputStream(server.getInputStream());
-            Message connectionMessage = new ConnectionMessage(sourceName, ProtocolConstants.TTL);
+            Message connectionMessage = new ConnectionMessage(sourceName);
             connectionMessage.sendTo(client, ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
 
             byte[] byteStream = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE];
@@ -123,7 +123,7 @@ public class MessageTest {
     public void testForSourcenameConnectionMessage() {
         try {
             DataInputStream in = new DataInputStream(server.getInputStream());
-            Message connectionMessage = new ConnectionMessage(sourceName, ProtocolConstants.TTL);
+            Message connectionMessage = new ConnectionMessage(sourceName);
             connectionMessage.sendTo(client, ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
 
             byte[] byteStream = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE];
@@ -143,7 +143,7 @@ public class MessageTest {
     public void testForDestinationnameConnectionMessage() {
         try {
             DataInputStream in = new DataInputStream(server.getInputStream());
-            Message connectionMessage = new ConnectionMessage(sourceName, ProtocolConstants.TTL);
+            Message connectionMessage = new ConnectionMessage(sourceName);
             connectionMessage.sendTo(client, ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
 
             byte[] byteStream = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE];
@@ -206,7 +206,7 @@ public class MessageTest {
 
         try {
             DataInputStream in = new DataInputStream(server.getInputStream());
-            Message routingMessage = new RoutingMessage(sourceName, ProtocolConstants.TTL, routingTableList);
+            Message routingMessage = new RoutingMessage(sourceName, routingTableList);
             routingMessage.sendTo(client, ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET);
 
             byte[] byteStream = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE + routingTableList.size() + ProtocolConstants.ROUTING_ENTRY_SIZE_IN_BYTE];
@@ -244,6 +244,19 @@ public class MessageTest {
         byte messageLen = (byte) message.length();
         byte[] messageByte = message.getBytes(StandardCharsets.UTF_8);
 
+        byte[] basisheaderMessage = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE];
+        basisheaderMessage[ProtocolConstants.TYPE_INDEX] = type;
+        basisheaderMessage[ProtocolConstants.TTL_INDEX] = ttl;
+        System.arraycopy(destination, 0, basisheaderMessage, ProtocolConstants.DESTINATION_NETWORK_NAME_LOWER, ProtocolConstants.DESTINATION_NETWORK_NAME_SIZE_IN_BYTE);
+        System.arraycopy(source, 0, basisheaderMessage, ProtocolConstants.SOURCE_NETWORK_NAME_LOWER, ProtocolConstants.SOURCE_NETWORK_NAME_SIZE_IN_BYTE);
+        byte[] messageheader = new byte[ProtocolConstants.COMMUNICATION_MESSAGE_LENGTH_IN_BYTE + messageLen];
+        messageheader[ProtocolConstants.COMMUNICATION_MESSAGE_LENGTH_INDEX] = messageLen;
+        System.arraycopy(messageByte, 0, messageheader, 1, messageLen);
+
+        byte[] paket = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE + ProtocolConstants.COMMUNICATION_MESSAGE_LENGTH_IN_BYTE + messageLen];
+        System.arraycopy(basisheaderMessage, 0, paket, 0, basisheaderMessage.length);
+        System.arraycopy(messageheader, 0, paket, basisheaderMessage.length, messageheader.length);
+        long crc32 = ProtocolCRC32.getCRC32Checksum(paket);
 
         try {
             DataInputStream in = new DataInputStream(server.getInputStream());
@@ -254,8 +267,8 @@ public class MessageTest {
             in.readFully(byteStream);
 
             byte[] checkSumByte = new byte[ProtocolConstants.CHECKSUM_CRC32_SIZE];
-            System.arraycopy(byteStream, ProtocolConstants.BASISHEADER_SIZE_IN_BYTE + 1 + message.length(), checkSumByte, 0, ProtocolConstants.CHECKSUM_CRC32_SIZE);
-            System.out.println(checkSumByte.length);
+            System.arraycopy(byteStream, ProtocolConstants.BASISHEADER_SIZE_IN_BYTE + message.length(), checkSumByte, 0, ProtocolConstants.CHECKSUM_CRC32_SIZE);
+            //assertEquals(crc32, ProtocolCRC32.getCRC32Checksum(checkSumByte));
 
         } catch (IOException e) {
             System.err.println("Cannot crate Inputstraem for server");

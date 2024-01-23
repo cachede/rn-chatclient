@@ -19,11 +19,10 @@ public class RoutingMessage extends Message {
      * a list of RoutinTableEntries.
      *
      * @param sourceName    The name of the destination, which should unwrap the value of a routingmessage
-     * @param ttl           The Time-to-live for the RoutingMessage
      * @param payload       A list of routingtableentries, which should be send to the direct connections
      */
-    public RoutingMessage(String sourceName, byte ttl,  List<RoutingTableEntry> payload) {
-        super(ProtocolConstants.TYPE_ROUTINGPAKET, ttl, sourceName);
+    public RoutingMessage(String sourceName, List<RoutingTableEntry> payload) {
+        super(ProtocolConstants.TYPE_ROUTINGPAKET, ProtocolConstants.TTL, sourceName);
         this.payload = payload;
     }
 

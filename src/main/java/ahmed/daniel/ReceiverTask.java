@@ -209,7 +209,7 @@ public class ReceiverTask implements Runnable {
 
         // Send our name to source if our name is not set (zzz) for them yet
         if (this.basisheaderNewTtl > 0 && this.basisheaderDestinationName.equals(ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET)) {
-            Message namePackage = new ConnectionMessage(this.name, this.basisheaderNewTtl);
+            Message namePackage = new ConnectionMessage(this.name);
             namePackage.sendTo(this.socket, this.basisheaderSourceName);
         }
 

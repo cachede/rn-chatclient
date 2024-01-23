@@ -45,7 +45,7 @@ public class RoutingTableThread extends TimerTask {
 
             while(iterator.hasNext()) {
                 String connectionName = iterator.next().getKey();
-                Message routingMessage = new RoutingMessage(this.name, ProtocolConstants.TTL, getExtractedRoutingTable(routingList, connectionName));
+                Message routingMessage = new RoutingMessage(this.name, getExtractedRoutingTable(routingList, connectionName));
 
                 // Check if active Connection is still active
                 int minHopCountToConnection = routingTableManager.getMinHopCountForDestination(connectionName);
