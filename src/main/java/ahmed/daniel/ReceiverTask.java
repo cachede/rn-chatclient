@@ -74,7 +74,7 @@ public class ReceiverTask implements Runnable {
                         // compare checksum
                         byte[] checksumBuffer = new byte[ProtocolConstants.CHECKSUM_CRC32_SIZE];
                         in.readFully(checksumBuffer);
-                        byte[] payload = new byte[0];
+                        byte[] payload = new byte[ProtocolConstants.CONNECTION_MESSAGE_PAYLOAD_SIZE];
                         if (ProtocolCRC32.checkSumIsInvalid(basisheaderBuffer, payload, checksumBuffer)) {
                             System.out.println("V: Angekommene Checksumme ist nicht korrekt -> Paket verwerfen");
                             break;
@@ -124,7 +124,7 @@ public class ReceiverTask implements Runnable {
                     }
                     break;
                     default:
-                        System.out.println("Keine Ahnung was das fuer ein Paket");
+                        System.out.println("Keine Ahnung was ist das fuer ein Paket");
                         break;
                 }
             }
@@ -205,10 +205,10 @@ public class ReceiverTask implements Runnable {
 
     private void handleVerbindungspaket() throws IOException{
         this.activeConnectionManager.addActiveConnection(this.basisheaderSourceName, this.socket);
-        this.routingTableManager.addRoutingTableEntry(this.basisheaderSourceName, this.basisheaderSourceName, (byte) 1);
+        this.routingTableManager.addRoutingTableEntry(this.basisheaderSourceName, this.basisheaderSourceName, ProtocolConstants.DIRECT_NEIGHBOR_HOPCOUNT);
 
         // Send our name to source if our name is not set (zzz) for them yet
-        if (this.basisheaderNewTtl > 0 && this.basisheaderDestinationName.equals(ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET)) {
+        if (this.basisheaderDestinationName.equals(ProtocolConstants.DESTINATION_NETWORK_NAME_NOT_SET)) {
             Message namePackage = new ConnectionMessage(this.name);
             namePackage.sendTo(this.socket, this.basisheaderSourceName);
         }
@@ -244,7 +244,7 @@ public class ReceiverTask implements Runnable {
         if (this.basisheaderDestinationName.equals(this.name)) {
             System.out.println("\n" + this.basisheaderSourceName + ": " + messageStr);
             //redirect message
-        } else if (this.basisheaderNewTtl > 0 && this.activeConnectionManager.getAllActiveConnectionNames().contains(this.basisheaderDestinationName)) {
+        } else if (this.basisheaderNewTtl > ProtocolConstants.MIN_TT_VALUE && this.activeConnectionManager.getAllActiveConnectionNames().contains(this.basisheaderDestinationName)) {
             System.out.println("Hier sollten wir weiterleiten an " + this.basisheaderDestinationName);
             Message passMessage = new CommunicationMessage(this.basisheaderSourceName, this.basisheaderNewTtl, messageStr);
             Socket passSocket = this.activeConnectionManager.getSocketFromName(this.basisheaderDestinationName);

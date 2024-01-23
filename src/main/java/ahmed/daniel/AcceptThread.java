@@ -42,6 +42,7 @@ public class AcceptThread implements Runnable {
             try {
                 newSocket = this.serverSocket.accept();
             } catch (IOException e) {
+                System.err.println("ServerSocket of Client cannot accept Connections");
                 break;
             }
 

@@ -76,7 +76,6 @@ public class MessageTest {
             byte[] byteStream = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE];
             in.readFully(byteStream);
             String gotString = new String(byteStream, StandardCharsets.UTF_8);
-            System.out.println(gotString);
 
             assertFalse(gotString.isEmpty());
             assertEquals(ProtocolConstants.BASISHEADER_SIZE_IN_BYTE, byteStream.length);
@@ -257,6 +256,7 @@ public class MessageTest {
         System.arraycopy(basisheaderMessage, 0, paket, 0, basisheaderMessage.length);
         System.arraycopy(messageheader, 0, paket, basisheaderMessage.length, messageheader.length);
         long crc32 = ProtocolCRC32.getCRC32Checksum(paket);
+        byte[] crc32byte = ProtocolCRC32.getChecksumBytes(crc32);
 
         try {
             DataInputStream in = new DataInputStream(server.getInputStream());
@@ -266,13 +266,16 @@ public class MessageTest {
             byte[] byteStream = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE + ProtocolConstants.COMMUNICATION_MESSAGE_LENGTH_IN_BYTE + message.length() + ProtocolConstants.CHECKSUM_CRC32_SIZE];
             in.readFully(byteStream);
 
+            byte[] receivedBasisheaderBytes = new byte[ProtocolConstants.BASISHEADER_SIZE_IN_BYTE];
+            System.arraycopy(byteStream, 0, receivedBasisheaderBytes, 0, ProtocolConstants.BASISHEADER_SIZE_IN_BYTE);
+            byte[] payloadHeaderbytes = new byte[ProtocolConstants.COMMUNICATION_MESSAGE_LENGTH_IN_BYTE + messageLen];
+            System.arraycopy(byteStream, ProtocolConstants.BASISHEADER_SIZE_IN_BYTE, payloadHeaderbytes, 0, ProtocolConstants.COMMUNICATION_MESSAGE_LENGTH_IN_BYTE + messageLen);
             byte[] checkSumByte = new byte[ProtocolConstants.CHECKSUM_CRC32_SIZE];
             System.arraycopy(byteStream, ProtocolConstants.BASISHEADER_SIZE_IN_BYTE + message.length(), checkSumByte, 0, ProtocolConstants.CHECKSUM_CRC32_SIZE);
-            //assertEquals(crc32, ProtocolCRC32.getCRC32Checksum(checkSumByte));
+            assertFalse(ProtocolCRC32.checkSumIsInvalid(receivedBasisheaderBytes, payloadHeaderbytes, crc32byte));
 
         } catch (IOException e) {
             System.err.println("Cannot crate Inputstraem for server");
         }
     }
-
 }

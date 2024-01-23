@@ -75,7 +75,6 @@ public class ChatClientTest {
     void testSendMessage() {
         String textMessage = "secretMessage";
         chatClient1.addNewConnection("localhost", 8090);
-        if (chatClient1.getActiveConnectionNames().size() == 1) {}
 
         await().atMost(5, TimeUnit.SECONDS).until(() -> chatClient1.getActiveConnectionNames().size() == 1
                 && chatClient2.getActiveConnectionNames().size() == 1);
@@ -86,12 +85,6 @@ public class ChatClientTest {
 
         assertEquals("DAN: " + textMessage, outputStreamCaptor.toString().trim());
     }
-
-    //TODO: test if the TTL-Count was decremented
-
-
-
-
 
 
 }

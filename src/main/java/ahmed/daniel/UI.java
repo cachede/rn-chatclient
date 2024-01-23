@@ -53,7 +53,7 @@ public class UI {
                         chatClient.addNewConnection(ipv4address, port);
 
                     }catch (NumberFormatException nfe) {
-                        System.out.println("Please enter a valid IP/Port");
+                        System.err.println("Please enter a valid IP/Port");
                     }
                     break;
                 }

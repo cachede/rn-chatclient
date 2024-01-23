@@ -18,6 +18,8 @@ import java.util.Timer;
  * is responsible for all use cases by the user of the application (see use-case-Diagramm)
  */
 public class ChatClient {
+    private static final int MAX_NUMBER_OF_CLIENTS_WAITING = 5;
+
     private final ServerSocket serverSocket;
     private final String name;
     private final ActiveConnectionManager activeConnectionManager;
@@ -41,12 +43,11 @@ public class ChatClient {
         this.name = name;
         this.activeConnectionManager = new ActiveConnectionManager();
         this.routingTableManager = new RoutingTableManager();
-        this.serverSocket = new ServerSocket(port, 5, ipAddress);
+        this.serverSocket = new ServerSocket(port, MAX_NUMBER_OF_CLIENTS_WAITING, ipAddress);
 
         this.accThread = new Thread(new AcceptThread(this.serverSocket, this.name, this.activeConnectionManager, this.routingTableManager));
         this.routingThread = new RoutingTableThread(routingTableManager, activeConnectionManager, name);
         this.timer = new Timer();
-
     }
 
     /**
@@ -134,9 +135,6 @@ public class ChatClient {
         stopActiveConnections();
     }
 
-    /**
-     * Stops the ServerSocket of the current Client.
-     */
     private void stopSocket() {
         try {
             serverSocket.close();
@@ -145,9 +143,6 @@ public class ChatClient {
         }
     }
 
-    /**
-     * Stops sending Routingtables to all Direct Connections of the Client
-     */
     private void stopRouting() {
         timer.cancel();
     }
@@ -163,9 +158,6 @@ public class ChatClient {
         return this.activeConnectionManager.getAllActiveConnectionNames();
     }
 
-    /**
-     * Stops all active Connections to all current Active Connections of the Client
-     */
     private void stopActiveConnections() {
         this.activeConnectionManager.shutdownReceiverPool();
         this.activeConnectionManager.stopActiveConnections();

@@ -108,7 +108,7 @@ public class ActiveConnectionManager{
             try {
                 this.activeConnections.get(toBeClosedName).close();
             } catch (IOException e) {
-                System.out.println("RemoveActionConnection konnte Socket nicht schließen");
+                System.err.println("RemoveActionConnection konnte Socket nicht schließen");
             }
         }
     }
@@ -147,7 +147,7 @@ public class ActiveConnectionManager{
             try {
                 activeConnections.get(name).close();
             } catch (IOException e) {
-                System.out.println("FEHLER BEIM CLOSEN VON SOCKETS");
+                System.err.println("FEHLER BEIM CLOSEN VON SOCKETS");
             }
         }
     }

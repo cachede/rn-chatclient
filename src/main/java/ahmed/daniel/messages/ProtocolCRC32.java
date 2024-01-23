@@ -9,6 +9,8 @@ import java.util.zip.Checksum;
  * ProtocolCRC32 is for calculating and handling CRC32 checksums in the communication protocol.
  */
 public abstract class ProtocolCRC32 {
+
+    private final static int MOST_SIGNIFICANT_BYTE_CRC32 = 4;
     private ProtocolCRC32(){};
     /**
      * Calculates the CRC32 checksum for the given byte array
@@ -32,7 +34,7 @@ public abstract class ProtocolCRC32 {
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
         buffer.putLong(checksum);
         byte[] checksumByte = new byte[ProtocolConstants.CHECKSUM_CRC32_SIZE];
-        System.arraycopy(buffer.array(), 4, checksumByte, 0, ProtocolConstants.CHECKSUM_CRC32_SIZE);
+        System.arraycopy(buffer.array(), MOST_SIGNIFICANT_BYTE_CRC32, checksumByte, 0, ProtocolConstants.CHECKSUM_CRC32_SIZE);
         return checksumByte;
     }
 

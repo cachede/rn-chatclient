@@ -55,13 +55,13 @@ public class RoutingTableThread extends TimerTask {
                 }
 
                 // Send Routingtables to direct Neighbors
-                if(routingTableManager.getMinHopCountForDestination(connectionName) == 1) {
+                if(routingTableManager.getMinHopCountForDestination(connectionName) == ProtocolConstants.DIRECT_NEIGHBOR_HOPCOUNT) {
                     Socket conSocket = activeConnectionManager.getSocketFromName(connectionName);
 
                     try {
                         routingMessage.sendTo(conSocket, connectionName);
                     } catch (IOException ioException) {
-                        System.out.println("No connection to " + connectionName + "... setting as unreachable");
+                        System.err.println("No connection to " + connectionName + "... setting as unreachable");
 
                         routingTableManager.setSourceAsUnreachable(connectionName);
                         activeConnectionManager.closeActiveConnection(connectionName);
@@ -95,7 +95,7 @@ public class RoutingTableThread extends TimerTask {
 
         //Remove If destination if same as conncetion name
         List<RoutingTableEntry> bestRoutesList = new ArrayList<>(bestRoutes.values());
-        bestRoutesList.removeIf(routingTableEntry -> routingTableEntry.getDestination().equals(connectionName)); //|| routingTable.getNextHop().equals(connectionName));
+        bestRoutesList.removeIf(routingTableEntry -> routingTableEntry.getDestination().equals(connectionName));
 
         List<RoutingTableEntry> routesAfterPoisionReverse = new ArrayList<>();
 

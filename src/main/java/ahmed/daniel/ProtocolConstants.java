@@ -8,7 +8,6 @@ public final class ProtocolConstants {
     private ProtocolConstants(){}
 
     // Basisheader:
-    // TYP
     /**
      * Size in bytes for the type field in the basis header.
      */
@@ -34,7 +33,6 @@ public final class ProtocolConstants {
      */
     public static final byte TYPE_MESSAGEPAKET = 2;
 
-    // TTL
     /**
      * Size in bytes for the time-to-live (TTL) field in the basis header.
      */
@@ -50,7 +48,6 @@ public final class ProtocolConstants {
      */
     public static final byte TTL = 64;
 
-    // Zielnetzname and Quellnetzname
     /**
      * Size in bytes for the destination network name field in the basis header.
      */
@@ -85,7 +82,6 @@ public final class ProtocolConstants {
      */
     public static final int SOURCE_NETWORK_NAME_HIGHER = SOURCE_NETWORK_NAME_LOWER + SOURCE_NETWORK_NAME_SIZE_IN_BYTE;
 
-    // Total Basisheader size
     /**
      * Total size in bytes for the basis header.
      */
@@ -135,7 +131,6 @@ public final class ProtocolConstants {
      */
     public static final int ROUTING_HOPCOUNT_SIZE_IN_BYTE = 1;
 
-    // Total size
     /**
      * Total size in bytes for the routing entry.
      */
@@ -178,9 +173,28 @@ public final class ProtocolConstants {
      */
     public static final byte ROUTING_DESTINATION_UNREACHABLE = 16;
 
+    // Verbindungspaket:/
+
+    /**
+     * Size of the payload from a connection message
+     */
+    public static final int CONNECTION_MESSAGE_PAYLOAD_SIZE = 0;
+
+
     //CRC
     /**
      * Size in bytes for the CRC32 checksum field.
      */
     public static final byte CHECKSUM_CRC32_SIZE = 4;
+
+
+    /**
+     * Direct Neighbor with HopCount = 1
+     */
+    public static final byte DIRECT_NEIGHBOR_HOPCOUNT = 1;
+
+    /**
+     * Last valid ttl, after that the paket is not send any further
+     */
+    public static final byte MIN_TT_VALUE = 0;
 }
